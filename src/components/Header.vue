@@ -8,8 +8,14 @@
   >
     <!-- Left section: menu icon + title -->
     <div class="header-left">
-      <v-btn icon @click="toggleSidebar">
-        <v-icon size="28">mdi-menu</v-icon>
+      <!-- <v-btn icon @click="toggleSidebar">
+        <v-icon size="24">mdi-menu</v-icon>
+      </v-btn>
+      <v-btn icon v-if="isMobile" @click="drawerOpen = false" class="close-btn">
+        <v-icon>mdi-close</v-icon>
+      </v-btn> -->
+      <v-btn icon @click="$emit('toggle-sidebar')">
+        <v-icon>mdi-menu</v-icon>
       </v-btn>
       <v-toolbar-title class="dashboard-title">Dashboard</v-toolbar-title>
     </div>
@@ -63,16 +69,17 @@ import { defineProps, defineEmits } from 'vue'
 import { useRouter } from 'vue-router'
 
 const props = defineProps({
-  isDarkMode: { type: Boolean, default: false }
+  isDarkMode: { type: Boolean, default: false },
+  isMobile: { type: Boolean, default: false }   
 })
 const emit = defineEmits(['toggle-sidebar', 'toggle-darkmode'])
 
 const router = useRouter()
 
-const toggleSidebar = () => {
-  console.log('Header: toggle-sidebar clicked!')
-  emit('toggle-sidebar')
-}
+// const toggleSidebar = () => {
+//   console.log('Header: toggle-sidebar clicked!')
+//   emit('toggle-sidebar')
+// }
 const toggleDarkMode = () => {
   console.log('Header: toggle-darkmode clicked!', props.isDarkMode)
   emit('toggle-darkmode')
