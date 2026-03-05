@@ -5,8 +5,10 @@
       <!-- Sidebar -->
 
       <!-- <Sidebar :collapsed="isSidebarCollapsed" /> -->
-      <Sidebar :collapsed="isSidebarCollapsed"
-      v-model:drawerOpen="drawerOpen" />
+      <Sidebar :drawerOpen="drawerOpen"
+  :collapsed="isSidebarCollapsed"
+  :isMobile="isMobile"
+  @update:drawerOpen="drawerOpen = $event" />
 
 
       <!-- Main content -->
@@ -39,7 +41,7 @@
         <!-- Large content box (table/chart) -->
         <v-card class="large-box mt-6 pa-4">
           <!-- Placeholder: Table or Chart -->
-          <div class="text-center text-gray-600">Your table or chart here</div>
+          <div class="text-center text-gray-600"><h2>{{ partnerName }}</h2>Your table or chart here</div>
         </v-card>
 
       </v-container>
@@ -49,11 +51,11 @@
 </template>
 
 <script setup>
-import { ref, onMounted, onUnmounted } from "vue";
+import { ref, onMounted, onUnmounted, computed } from "vue";
 import Sidebar from "@/components/Sidebar.vue";
 import Header from "@/components/Header.vue";
 import StatCard from "@/components/StatCard.vue";
-//import { fetchPartnerInvestments } from "@/api/partner";
+import { useAuthStore } from "@/store/auth"
 
 //const stats = ref();
 
@@ -62,11 +64,17 @@ const isDarkMode = ref(false)
 const drawerOpen = ref(false)
 const isMobile = ref(false)
 
+const auth = useAuthStore()
+
 // handle Header emits
 const toggleSidebar = () => {
-  //console.log('Layout: toggleSidebar called! Current:', isSidebarCollapsed.value)
-  isSidebarCollapsed.value = !isSidebarCollapsed.value
-  //console.log('Layout: new isSidebarCollapsed:', isSidebarCollapsed.value)
+  if (isMobile.value) {
+    // On mobile: open/close drawer
+    drawerOpen.value = !drawerOpen.value
+  } else {
+    // On desktop: collapse/expand sidebar
+    isSidebarCollapsed.value = !isSidebarCollapsed.value
+  }
 }
 
 const checkMobile = () => {
@@ -83,7 +91,18 @@ const toggleDarkMode = () => {
 onMounted(async () => {
  checkMobile()
   window.addEventListener("resize", checkMobile)
+  await auth.loadPartner()
+  // const res = await fetchDashboardData()
+  // console.log(res.data) // partner info, investments, etc.
 });
+
+// Reactive computed properties
+const partnerName = computed(() => auth.partner?.partner?.name || '')
+// const partnerEmail = computed(() => auth.partner?.email || '')
+// const partnerPhone = computed(() => auth.partner?.phone || '')
+// const partnerWebsite = computed(() => auth.partner?.website || '')
+// const partnerAddress = computed(() => auth.partner?.address || '')
+
 onUnmounted(() => {
   window.removeEventListener("resize", checkMobile)
 })

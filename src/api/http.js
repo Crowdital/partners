@@ -1,7 +1,9 @@
 import axios from "axios";
 
+const API_URL = process.env.VUE_APP_API_BASE_URL;
+
 const http = axios.create({
-  baseURL: "http://127.0.0.1:8000/api/",
+  baseURL: API_URL + "/api/",
 });
 
 http.interceptors.request.use((config) => {
@@ -12,4 +14,5 @@ http.interceptors.request.use((config) => {
   return config;
 });
 
+export const STORAGE_URL = process.env.VUE_APP_STORAGE_URL;
 export default http;

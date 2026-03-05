@@ -1,12 +1,13 @@
 <template>
   <v-navigation-drawer
-    v-model="drawerOpen"
-    :temporary="isMobile"
-    app
-    floating
-    :permanent="!isMobile"
-    :width="(!isMobile && collapsed) ? 80 : 265"
-    class="sidebar"
+    :model-value="props.drawerOpen"
+  @update:modelValue="emit('update:drawerOpen', $event)"
+  :temporary="props.isMobile"
+  :permanent="!props.isMobile"
+  :width="!props.isMobile && props.collapsed ? 100 : 265"
+  app
+  floating
+  class="sidebar"
   >
     <!-- Logo -->
     <div class="logo-container">
@@ -93,34 +94,40 @@
 import { ref, watch, onMounted, onUnmounted } from 'vue'
 
 const props = defineProps({
-  collapsed: { type: Boolean, default: false }
+  collapsed: { type: Boolean, default: false },
+  drawerOpen: { type: Boolean, default: false },
+  isMobile: { type: Boolean, default: false },
 })
 
+const emit = defineEmits(["update:drawerOpen"])
 //const emit = defineEmits(['update:collapsed'])
 
 const drawerOpen = ref(true)
-const isMobile = ref(false)
+const isMobile = ref(window.innerWidth < 768)
+
 
 const checkMobile = () => {
   isMobile.value = window.innerWidth < 768
-  drawerOpen.value = !isMobile.value // desktop: open, mobile: closed initially
+
+  if (isMobile.value) {
+    drawerOpen.value = false // mobile: closed initially
+  } else {
+    drawerOpen.value = true  // desktop: open initially
+  }
 }
 
-// const toggleDrawer = () => {
-//   drawerOpen.value = true // always fully open on toggle
-// }
 onMounted(() => {
   checkMobile()
   window.addEventListener('resize', checkMobile)
 })
 
-onUnmounted(() => {
-  window.removeEventListener('resize', checkMobile)
-})
+onUnmounted(() => window.removeEventListener("resize", checkMobile))
 
 // Watch prop to reactively collapse
 watch(() => props.collapsed, () => {
-  drawerOpen.value = true // keep drawer open but width will shrink via :style
+  if (!isMobile.value) {
+    drawerOpen.value = true
+  }
 })
 
 const generalLinks = [
