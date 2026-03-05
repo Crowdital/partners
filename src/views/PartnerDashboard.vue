@@ -3,30 +3,36 @@
     <v-main class="dashboard">
 
       <!-- Sidebar -->
-      
-        <Sidebar :collapsed="isSidebarCollapsed" />
-     
+
+      <!-- <Sidebar :collapsed="isSidebarCollapsed" /> -->
+      <Sidebar :collapsed="isSidebarCollapsed"
+      v-model:drawerOpen="drawerOpen" />
+
+
       <!-- Main content -->
       <v-container fluid class="main-content pa-4">
 
         <!-- Header -->
-        <Header :isDarkMode="isDarkMode"
-          @toggle-sidebar="toggleSidebar"
+        <Header :isDarkMode="isDarkMode" :isMobile="isMobile" @toggle-sidebar="toggleSidebar"
           @toggle-darkmode="toggleDarkMode" />
-        
+
         <!-- Stat Cards -->
         <v-row class="dashboard-stats mt-4" dense>
           <v-col cols="12" sm="6" md="3">
-            <StatCard title="Total Investor" value="1,234" subtext="24 new since last visit" icon="mdi-account-group-outline" iconColor="#64cf69" />
+            <StatCard title="Total Investor" value="1,234" subtext="24 new since last visit"
+              icon="mdi-account-group-outline" iconColor="#64cf69" />
           </v-col>
           <v-col cols="12" sm="6" md="3">
-            <StatCard title="Total Invested" value="&#8358;56,700" subtext="24 new since last visit" icon="mdi-transfer" iconColor="#64cf69"  />
+            <StatCard title="Total Invested" value="&#8358;56,700" subtext="24 new since last visit" icon="mdi-transfer"
+              iconColor="#64cf69" />
           </v-col>
           <v-col cols="12" sm="6" md="3">
-            <StatCard title="Total Portfolio" value="890" subtext="24 new since last visit" icon="mdi-briefcase-outline" iconColor="#64cf69" />
+            <StatCard title="Total Portfolio" value="890" subtext="24 new since last visit" icon="mdi-briefcase-outline"
+              iconColor="#64cf69" />
           </v-col>
           <v-col cols="12" sm="6" md="3">
-            <StatCard title="Investment Balance" value="&#8358;12,345" subtext="24 new since last visit" icon="mdi-wallet-outline" iconColor="#64cf69" />
+            <StatCard title="Investment Balance" value="&#8358;12,345" subtext="24 new since last visit"
+              icon="mdi-wallet-outline" iconColor="#64cf69" />
           </v-col>
         </v-row>
 
@@ -43,16 +49,18 @@
 </template>
 
 <script setup>
-import { ref, onMounted } from "vue";
+import { ref, onMounted, onUnmounted } from "vue";
 import Sidebar from "@/components/Sidebar.vue";
 import Header from "@/components/Header.vue";
 import StatCard from "@/components/StatCard.vue";
-import { fetchPartnerInvestments } from "@/api/partner";
+//import { fetchPartnerInvestments } from "@/api/partner";
 
-const stats = ref();
+//const stats = ref();
 
 const isSidebarCollapsed = ref(false)
 const isDarkMode = ref(false)
+const drawerOpen = ref(false)
+const isMobile = ref(false)
 
 // handle Header emits
 const toggleSidebar = () => {
@@ -61,20 +69,24 @@ const toggleSidebar = () => {
   //console.log('Layout: new isSidebarCollapsed:', isSidebarCollapsed.value)
 }
 
+const checkMobile = () => {
+  isMobile.value = window.innerWidth < 768
+  if (!isMobile.value) drawerOpen.value = true // desktop always open
+  else drawerOpen.value = false                 // mobile closed by default
+}
+
 const toggleDarkMode = () => {
   isDarkMode.value = !isDarkMode.value
   //console.log('Layout: new isDarkMode:', isDarkMode.value)
 }
 
 onMounted(async () => {
-  try {
-    const { response } = await fetchPartnerInvestments();
-    stats.value = response;
-  } catch (error) {
-    console.error("Failed to fetch partner stats:", error);
-    stats.value = { users: 0, transactions: 0, investments: 0, wallets: 0 };
-  }
+ checkMobile()
+  window.addEventListener("resize", checkMobile)
 });
+onUnmounted(() => {
+  window.removeEventListener("resize", checkMobile)
+})
 </script>
 
 <style scoped>
@@ -106,7 +118,7 @@ onMounted(async () => {
 .large-box {
   min-height: 300px;
   border-radius: 12px;
-  box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
   background-color: #fff;
 }
 

@@ -1,8 +1,11 @@
 <template>
   <v-navigation-drawer
+    v-model="drawerOpen"
+    :temporary="isMobile"
     app
     floating
-    :width="collapsed ? 80 : 265"
+    :permanent="!isMobile"
+    :width="(!isMobile && collapsed) ? 80 : 265"
     class="sidebar"
   >
     <!-- Logo -->
@@ -87,14 +90,33 @@
 </template>
 
 <script setup>
-import { ref, watch } from 'vue'
+import { ref, watch, onMounted, onUnmounted } from 'vue'
 
 const props = defineProps({
   collapsed: { type: Boolean, default: false }
 })
 
-// Internal drawer open state
+//const emit = defineEmits(['update:collapsed'])
+
 const drawerOpen = ref(true)
+const isMobile = ref(false)
+
+const checkMobile = () => {
+  isMobile.value = window.innerWidth < 768
+  drawerOpen.value = !isMobile.value // desktop: open, mobile: closed initially
+}
+
+// const toggleDrawer = () => {
+//   drawerOpen.value = true // always fully open on toggle
+// }
+onMounted(() => {
+  checkMobile()
+  window.addEventListener('resize', checkMobile)
+})
+
+onUnmounted(() => {
+  window.removeEventListener('resize', checkMobile)
+})
 
 // Watch prop to reactively collapse
 watch(() => props.collapsed, () => {
