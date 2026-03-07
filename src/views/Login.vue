@@ -3,9 +3,9 @@
         <v-main class="login-wrapper">
 
             <!-- Left Pane (Desktop Only) -->
-            <div v-if="!isMobile" class="login-left">
+            <div class="login-left">
                 <img src="@/assets/login-bg.jpg" class="bg-image" />
-                <img src="@/assets/crowdital_icon.png" class="logo" />
+                <img src="@/assets/crowdital_partner.png" class="logo" />
             </div>
 
             <!-- Right Pane -->
@@ -14,7 +14,7 @@
 
                     <!-- Header -->
                     <div class="mb-8">
-                        <img src="../assets/crowdital_logo_dark.png" class="logo-img" alt="Crowdital Logo" />
+                        <img src="../assets/crowdital_partner.png" class="logo-img" alt="Crowdital Logo" />
                         <h3 class="text-2xl font-semibold text-gray-900 mt-8">
                             Log in to your account
                         </h3>
@@ -87,20 +87,7 @@ const email = ref("")
 const password = ref("")
 const error = ref("")
 const loading = ref(false)
-//const isMobile = ref(false)
 
-// const checkMobile = () => {
-//   isMobile.value = window.innerWidth < 768
-// }
-
-// onMounted(() => {
-//   checkMobile()
-//   window.addEventListener("resize", checkMobile)
-// })
-
-// onUnmounted(() => {
-//   window.removeEventListener("resize", checkMobile)
-// })
 
 const handleLogin = async () => {
   error.value = ""
@@ -109,9 +96,8 @@ const handleLogin = async () => {
     const res = await login({
       identifier: email.value,
       password: password.value,
-      //remember: remember.value
     })
-    localStorage.setItem("token", res.data.token)
+    localStorage.setItem("token", res.data.data.token)
     router.push("/dashboard")
   } catch (e) {
     error.value = e.response?.data?.message || "Login failed"; //e.message || "Invalid credentials"
@@ -221,5 +207,11 @@ const forgotPassword = () => {
     .login-wrapper {
         flex-direction: column;
     }
+    .login-left {
+        display: none;
+    }
+    .m-space{
+    margin-left: 7rem !important;
+}
 }
 </style>

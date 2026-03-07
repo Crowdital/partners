@@ -1,12 +1,13 @@
 <template>
   <v-navigation-drawer
-    v-model="drawerOpen"
-    :temporary="isMobile"
-    app
-    floating
-    :permanent="!isMobile"
-    :width="(!isMobile && collapsed) ? 80 : 265"
-    class="sidebar"
+    :model-value="props.drawerOpen"
+  @update:modelValue="emit('update:drawerOpen', $event)"
+  :temporary="props.isMobile"
+  :permanent="!props.isMobile"
+  :width="!props.isMobile && props.collapsed ? 100 : 265"
+  app
+  floating
+  class="sidebar"
   >
     <!-- Logo -->
     <div class="logo-container">
@@ -43,7 +44,7 @@
 
     <!-- ADMIN -->
     <v-list nav density="compact" class="sidebar-list mt-4">
-      <v-list-subheader v-if="!collapsed" class="section-title">ADMIN</v-list-subheader>
+      <v-list-subheader v-if="!collapsed" class="section-title">Reports</v-list-subheader>
 
       <v-list-item
         v-for="item in adminLinks"
@@ -90,60 +91,59 @@
 </template>
 
 <script setup>
-import { ref, watch, onMounted, onUnmounted } from 'vue'
+//import { watch, onMounted, onUnmounted } from 'vue'
 
 const props = defineProps({
-  collapsed: { type: Boolean, default: false }
+  collapsed: { type: Boolean, default: false },
+  drawerOpen: { type: Boolean, default: false },
+  isMobile: { type: Boolean, default: false },
 })
 
+const emit = defineEmits(["update:drawerOpen"])
 //const emit = defineEmits(['update:collapsed'])
 
-const drawerOpen = ref(true)
-const isMobile = ref(false)
+// const drawerOpen = ref(true)
+// const isMobile = ref(window.innerWidth < 768)
 
-const checkMobile = () => {
-  isMobile.value = window.innerWidth < 768
-  drawerOpen.value = !isMobile.value // desktop: open, mobile: closed initially
-}
 
-// const toggleDrawer = () => {
-//   drawerOpen.value = true // always fully open on toggle
+// const checkMobile = () => {
+//   isMobile.value = window.innerWidth < 768
+
+//   if (isMobile.value) {
+//     drawerOpen.value = false // mobile: closed initially
+//   } else {
+//     drawerOpen.value = true  // desktop: open initially
+//   }
 // }
-onMounted(() => {
-  checkMobile()
-  window.addEventListener('resize', checkMobile)
-})
 
-onUnmounted(() => {
-  window.removeEventListener('resize', checkMobile)
-})
+// onMounted(() => {
+//   checkMobile()
+//   window.addEventListener('resize', checkMobile)
+// })
 
-// Watch prop to reactively collapse
-watch(() => props.collapsed, () => {
-  drawerOpen.value = true // keep drawer open but width will shrink via :style
-})
+// onUnmounted(() => window.removeEventListener("resize", checkMobile))
+
+// // Watch prop to reactively collapse
+// watch(() => props.collapsed, () => {
+//   if (!isMobile.value) {
+//     drawerOpen.value = true
+//   }
+// })
 
 const generalLinks = [
   { title: "Dashboard", to: "/dashboard", icon: "mdi-view-dashboard-outline" },
-  { title: "Users", to: "/users", icon: "mdi-account-outline" },
   { title: "Transactions", to: "/transactions", icon: "mdi-swap-horizontal" },
-  { title: "Investments", to: "/investments", icon: "mdi-briefcase-outline" },
+  { title: "Investments", to: "/investments", icon: "mdi-finance" },
   { title: "Wallets", to: "/wallets", icon: "mdi-wallet-outline" },
-  { title: "Charges & Fees", to: "/fees", icon: "mdi-cash-multiple" },
-  { title: "Taxes", to: "/taxes", icon: "mdi-receipt-outline" },
 ]
 
 const adminLinks = [
   { title: "Products", to: "/products", icon: "mdi-package-variant-closed-check" },
-  { title: "Product Types", to: "/product-types", icon: "mdi-shape-outline" },
-  { title: "Interest Types", to: "/interest-types", icon: "mdi-percent-outline" },
-  { title: "Risk Categories", to: "/risk-categories", icon: "mdi-alert-circle-outline" },
-  { title: "Partners", to: "/partners", icon: "mdi-handshake-outline" },
+  { title: "Reports", to: "/reports", icon: "mdi-chart-line" },
 ]
 
 const settingsLinks = [
-  { title: "Roles", to: "/roles", icon: "mdi-account-key-outline" },
-  { title: "Permissions", to: "/permissions", icon: "mdi-lock-outline" },
+  { title: "Settings", to: "/settings", icon: "mdi-account-key-outline" },
 ]
 </script>
 
@@ -182,7 +182,7 @@ const settingsLinks = [
   font-size: 12px;
   color: #9aa0a6;
   text-transform: uppercase;
-  margin: 16px 0 8px;
+  margin: 1px 0 5px;
   padding-left: 18px;
   justify-content: flex-start !important;
 }
