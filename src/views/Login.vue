@@ -5,7 +5,7 @@
             <!-- Left Pane (Desktop Only) -->
             <div class="login-left">
                 <img src="@/assets/login-bg.jpg" class="bg-image" />
-                <img src="@/assets/crowdital_icon.png" class="logo" />
+                <img src="@/assets/crowdital_partner.png" class="logo" />
             </div>
 
             <!-- Right Pane -->
@@ -14,7 +14,7 @@
 
                     <!-- Header -->
                     <div class="mb-8">
-                        <img src="../assets/crowdital_logo_dark.png" class="logo-img" alt="Crowdital Logo" />
+                        <img src="../assets/crowdital_partner.png" class="logo-img" alt="Crowdital Logo" />
                         <h3 class="text-2xl font-semibold text-gray-900 mt-8">
                             Log in to your account
                         </h3>

@@ -1,5 +1,6 @@
 import { createRouter, createWebHistory } from 'vue-router'
 import Dashboard from '@/views/PartnerDashboard.vue'
+import Product from '@/views/Product.vue'
 import Login from '@/views/Login.vue'
 
 const routes = [
@@ -11,7 +12,13 @@ const routes = [
         path: '/dashboard',
         name: 'Dashboard',
         component: Dashboard,
-        meta: { requiresAuth: true },  //checks if a user is logged in before allowing them in
+        meta: { requiresAuth: true, title: 'Dashboard' },  //checks if a user is logged in before allowing them in
+    },
+    {
+        path: '/products',
+        name: 'Product',
+        component: Product,
+        meta: { requiresAuth: true, title: 'Products' },
     },
     {
         path: '/login',

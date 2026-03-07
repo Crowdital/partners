@@ -11,7 +11,7 @@
       <v-btn icon @click="$emit('toggle-sidebar')">
         <v-icon>mdi-menu</v-icon>
       </v-btn>
-      <v-toolbar-title class="dashboard-title">Dashboard</v-toolbar-title>
+      <v-toolbar-title class="dashboard-title">{{ $route.meta.title }}</v-toolbar-title>
     </div>
 
     <!-- Spacer pushes right section to the far right -->

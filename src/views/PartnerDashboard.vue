@@ -1,14 +1,12 @@
 <template>
   <v-app>
-    <v-main class="dashboard">
+    <v-main class="main">
 
       <!-- Sidebar -->
 
       <!-- <Sidebar :collapsed="isSidebarCollapsed" /> -->
-      <Sidebar :drawerOpen="drawerOpen"
-  :collapsed="isSidebarCollapsed"
-  :isMobile="isMobile"
-  @update:drawerOpen="drawerOpen = $event" />
+      <Sidebar :drawerOpen="drawerOpen" :collapsed="isSidebarCollapsed" :isMobile="isMobile"
+        @update:drawerOpen="drawerOpen = $event" />
 
 
       <!-- Main content -->
@@ -19,7 +17,7 @@
           @toggle-darkmode="toggleDarkMode" />
 
         <!-- Stat Cards -->
-        <v-row class="dashboard-stats mt-4" dense>
+        <v-row class="stats mt-4" dense>
           <v-col cols="12" sm="6" md="3">
             <StatCard title="Total Investor" value="1,234" subtext="24 new since last visit"
               icon="mdi-account-group-outline" iconColor="#64cf69" />
@@ -41,7 +39,9 @@
         <!-- Large content box (table/chart) -->
         <v-card class="large-box mt-6 pa-4">
           <!-- Placeholder: Table or Chart -->
-          <div class="text-center text-gray-600"><h2>{{ partnerName }}</h2>Your table or chart here</div>
+          <div class="text-center text-gray-600">
+            <h2>{{ partnerName }}</h2>Your table or chart here
+          </div>
         </v-card>
 
       </v-container>
@@ -51,10 +51,10 @@
 </template>
 
 <script setup>
-import { ref, onMounted, onUnmounted, computed } from "vue";
-import Sidebar from "@/components/Sidebar.vue";
-import Header from "@/components/Header.vue";
-import StatCard from "@/components/StatCard.vue";
+import { ref, onMounted, onUnmounted, computed } from "vue"
+import Sidebar from "@/components/Sidebar.vue"
+import Header from "@/components/Header.vue"
+import StatCard from "@/components/StatCard.vue"
 import { useAuthStore } from "@/store/auth"
 
 //const stats = ref();
@@ -89,7 +89,7 @@ const toggleDarkMode = () => {
 }
 
 onMounted(async () => {
- checkMobile()
+  checkMobile()
   window.addEventListener("resize", checkMobile)
   await auth.loadPartner()
   // const res = await fetchDashboardData()
@@ -109,7 +109,7 @@ onUnmounted(() => {
 </script>
 
 <style scoped>
-.dashboard {
+.main {
   display: flex;
   min-height: 100vh;
   font-family: sans-serif;
@@ -142,7 +142,7 @@ onUnmounted(() => {
 }
 
 /* Override v-card inside StatCard if needed */
-.dashboard-stats .v-card {
+.stats .v-card {
   text-align: center;
 }
 </style>
