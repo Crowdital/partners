@@ -12,7 +12,7 @@
     <!-- Logo -->
     <div class="logo-container">
       <img
-        src="../assets/crowdital_logo_dark.png"
+        src="../assets/crowdital_partner.png"
         class="logo-img"
         :style="{ width: collapsed ? '40px' : '12em' }"
         alt="Crowdital Logo"
@@ -152,7 +152,7 @@ const settingsLinks = [
 .sidebar {
   /* background: #ffffff; */
   border-right: 1px solid #eee;
-  font-family: "Roboto", sans-serif;
+  /* font-family: "Roboto", sans-serif; */
   transition: width 0.3s ease;
   background-color: #f3f4f6;
   padding: 12px; /* space around inner drawer */
