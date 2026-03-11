@@ -19,7 +19,7 @@ export const useAuthStore = defineStore("auth", {
       try {
         const res = await fetchProductData()
         this.products = res.data.data.products || []
-        console.log("Products loaded:", res.data.data.products)
+        //console.log("Products loaded:", res.data.data.products)
       } catch (error) {
         console.error("Failed to load products:", error)
         this.products = []

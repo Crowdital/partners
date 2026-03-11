@@ -13,13 +13,21 @@
 
         <!-- Stats -->
         <v-row class="stats mt-4" dense>
-          <v-col cols="12" sm="6">
-            <StatCard title="Active Products" :value="activeProducts" icon="mdi-check-circle-outline"
-              iconColor="#22c55e" />
+          <v-col cols="12" sm="3">
+            <StatCard title="Total Investment" :value="activeProducts" icon="mdi-cash-multiple"
+              iconColor="#22c55e" subtext="24 new since last visit" />
           </v-col>
-          <v-col cols="12" sm="6">
-            <StatCard title="Inactive Products" :value="inactiveProducts" icon="mdi-close-circle-outline"
-              iconColor="#ef4444" />
+          <v-col cols="12" sm="3">
+            <StatCard title="Completed Investment" :value="inactiveProducts" icon="mdi-cash-check"
+              iconColor="#ef4444" subtext="24 new since last visit" />
+          </v-col>
+          <v-col cols="12" sm="3">
+            <StatCard title="Pending Investment" :value="activeProducts" icon="mdi-cash-lock"
+              iconColor="#22c55e" subtext="24 new since last visit" />
+          </v-col>
+          <v-col cols="12" sm="3">
+            <StatCard title="Active Investor" :value="inactiveProducts" icon="mdi-account-group-outline"
+              iconColor="#ef4444" subtext="24 new since last visit" />
           </v-col>
         </v-row>
 
@@ -29,97 +37,81 @@
           <div class="table-header flex justify-between align-center flex-wrap">
             <!-- Left side: search + clear -->
             <div style="display: flex; align-items: center; gap: 16px; margin-bottom: 8px;">
-              <InputText v-model="filters['global'].value" placeholder="Search products..." />
+              <InputText v-model="filters['global'].value" placeholder="Search Investments..." />
               <Button type="button" icon="pi pi-filter-slash" label="Clear" variant="outlined" @click="clearFilters" />
             </div>
-
-            <!-- Right side: Add Product -->
-            <!-- <v-btn variant="flat" prepend-icon="mdi-plus" class="theme-button">
-              Add Product
-            </v-btn> -->
-              <!-- Left: Date Range -->
           </div>
 
-          <!-- PrimeVue DataTable with search ---NB: add showGridlines to show column lines-->
-          <DataTable v-model:filters="filters" :value="products" paginator :rows="10" dataKey="id"
+          <!-- PrimeVue DataTable with search -->
+          <DataTable v-model:filters="filters" :value="investments" paginator :rows="10" dataKey="id"
             stripedRows class="modern-table" :rowsPerPageOptions="[5, 10, 20, 50]" tableStyle="min-width: 50rem"
             filterDisplay="menu" :globalFilterFields="['product_name', 'description']">
-            <!-- Header with search input -->
-            <!-- <template #header>
-              <div class="flex justify-between align-center p-2">
-                <Button type="button" icon="pi pi-filter-slash" label="Clear" variant="outlined"
-                  @click="clearFilters" />
-                <div class="search-wrapper">
-                  <i class="pi pi-search search-icon"></i>
-                  <InputText v-model="filters['global'].value" placeholder="Search products..." />
-                </div>
-              </div>
-            </template> -->
 
             <!-- Empty table -->
             <template #empty>
-              No products found.
+              No Investment found.
             </template>
 
             <!-- Loading state -->
             <template #loading>
-              Loading products...
+              Loading Investment...
             </template>
 
             <!-- Product Column -->
-            <Column header="Product">
+            <Column header="Customer">
               <template #body="slotProps">
                 <div class="product-cell">
                   <img
-                    :src="slotProps.data.product_image ? `${STORAGE_URL}/${slotProps.data.product_image}` : defaultImage"
+                    :src="slotProps.data.product.image ? `${STORAGE_URL}/${slotProps.data.product.image}` : defaultImage"
                     class="product-image" />
                   <div>
-                    <div class="product-name">{{ slotProps.data.product_name }}</div>
-                    <div class="product-desc">{{ truncate(slotProps.data.description) }}</div>
+                    <div class="product-name">{{ slotProps.data.user.profile.firstname }} {{ slotProps.data.user.profile.lastname }}</div>
+                    <div class="product-desc">{{ truncate(slotProps.data.user.email) }}</div>
                   </div>
                 </div>
               </template>
             </Column>
 
             <!-- Status Column -->
+            <Column header="Product">
+              <template #body="slotProps">
+                <div class="product-name">{{ slotProps.data.product.name }}</div>
+              </template>
+            </Column>
+
+            <!-- Status Column -->
             <Column header="Status">
               <template #body="slotProps">
-                <span :class="['status-pill', slotProps.data.is_active ? 'status-active' : 'status-inactive']">
-                  {{ slotProps.data.is_active ? 'Active' : 'Inactive' }}
+                <span :class="['status-pill', slotProps.data.status ? 'status-active' : 'status-inactive']">
+                  {{ slotProps.data.status ? 'Active' : 'Inactive' }}
                 </span>
               </template>
             </Column>
 
-            <!-- Min tenure Column -->
-            <Column header="Minimum Tenure">
+            <!-- Status Column -->
+            <Column header="Amount">
               <template #body="slotProps">
-                {{ slotProps.data.min_tenure }}
+                <div class="product-name">₦{{ parseFloat(slotProps.data.price) }}</div>
               </template>
             </Column>
 
-            <!-- Min Amount Column-->
-            <Column header="Minimum Amount">
+            <!-- Status Column -->
+            <Column header="Interest">
               <template #body="slotProps">
-                {{ slotProps.data.min_amount }}
-              </template>
-            </Column>
-
-            <!-- Interest Column -->
-            <Column header="Interest(%)">
-              <template #body="slotProps">
-                {{ parseFloat(slotProps.data.interest) }}
+                <div class="product-name">₦{{ parseFloat(slotProps.data.accumulated_yield) }}</div>
+                <div class="product-desc">At {{ parseFloat(slotProps.data.product.interest_rate) }}% p.a</div>
               </template>
             </Column>
 
             <!-- Created Column -->
-            <Column header="Created">
+            <Column header="Duration">
               <template #body="slotProps">
-                {{ formatDate(slotProps.data.created_at) }}
+                From {{ formatDate(slotProps.data.created_at) }} to {{ formatDate(slotProps.data.maturity_date) }}
               </template>
             </Column>
 
             <!-- Actions Column -->
-            <Column header="" style="width:120px">
+            <!-- <Column header="" style="width:120px">
               <template #body="slotProps">
                 <v-menu>
                   <template #activator="{ props }">
@@ -139,12 +131,12 @@
                   </v-list>
                 </v-menu>
               </template>
-            </Column>
+            </Column> -->
 
           </DataTable>
         </v-card>
         <!-- Edit Modal -->
-        <v-dialog v-model="editDialog" max-width="500px">
+        <!-- <v-dialog v-model="editDialog" max-width="500px">
           <v-card>
             <v-card-title>Edit Product</v-card-title>
             <v-card-text>
@@ -158,7 +150,7 @@
               <v-btn color="primary" @click="saveEdit">Save</v-btn>
             </v-card-actions>
           </v-card>
-        </v-dialog>
+        </v-dialog> -->
       </v-container>
     </v-main>
   </v-app>
@@ -170,6 +162,7 @@ import Sidebar from "@/components/Sidebar.vue"
 import Header from "@/components/Header.vue"
 import StatCard from "@/components/StatCard.vue"
 import { useAuthStore } from "@/store/auth"
+import { useInvStore } from "@/store/investment"
 import { STORAGE_URL } from "@/api/env"
 
 import DataTable from "primevue/datatable"
@@ -179,6 +172,8 @@ import InputText from "primevue/inputtext"
 
 import dayjs from "dayjs"
 
+
+const inv = useInvStore();
 const auth = useAuthStore()
 
 const isSidebarCollapsed = ref(false)
@@ -202,9 +197,11 @@ const checkMobile = () => {
 onMounted(async () => {
   checkMobile()
   window.addEventListener("resize", checkMobile)
+  await inv.loadInvestment()
   await auth.loadPartner()
-  await auth.loadProducts()
-  // console.log(products.value)
+  //await auth.loadProducts()
+  
+  console.log(investments.value)
 })
 
 onUnmounted(() => {
@@ -212,17 +209,21 @@ onUnmounted(() => {
 })
 
 /* Products */
+const investments = computed(() => inv.investments || [])
 const products = computed(() => auth.products || [])
-// const active = auth.active
-// const inactive = auth.inactive
+
 
 /* Stats */
 const activeProducts = computed(() => products.value.filter(p => p.is_active).length)
 const inactiveProducts = computed(() => products.value.filter(p => !p.is_active).length)
 
 /* Utils */
-const truncate = (text) => !text ? "" : text.length > 60 ? text.substring(0, 60) + "..." : text
+const truncate = (text) => !text ? "" : text.length > 150 ? text.substring(0, 150) + "..." : text
 const formatDate = (date) => dayjs(date).format("MMM DD, YYYY")
+
+// /* Actions */
+// const editProduct = (product) => console.log("Edit", product)
+// const deleteProduct = (product) => console.log("Delete", product)
 
 /* Clear filters */
 const clearFilters = () => {
@@ -230,19 +231,19 @@ const clearFilters = () => {
 }
 
 // Edit Modal
-const editDialog = ref(false)
-const selectedProduct = ref({})
+// const editDialog = ref(false)
+// const selectedProduct = ref({})
 
-const openEditModal = (product) => {
-  selectedProduct.value = { ...product } // copy to avoid mutating table directly
-  editDialog.value = true
-}
+// const openEditModal = (product) => {
+//   selectedProduct.value = { ...product } // copy to avoid mutating table directly
+//   editDialog.value = true
+// }
 
-const closeEditModal = () => editDialog.value = false
-const saveEdit = () => {
-  console.log("Save", selectedProduct.value)
-  editDialog.value = false
-}
+// const closeEditModal = () => editDialog.value = false
+// const saveEdit = () => {
+//   console.log("Save", selectedProduct.value)
+//   editDialog.value = false
+// }
 </script>
 
 <style scoped>
@@ -342,12 +343,5 @@ const saveEdit = () => {
   border-radius: 10px;
   font-weight: 600;
   transition: all 0.25s ease;
-}
-
-:deep(.modern-table .p-datatable-thead > tr > th) {
-  background: #eef7f0;
-  color: #065f46;
-  font-weight: 600;
-  border-bottom: 2px solid #c1edc3;
 }
 </style>
