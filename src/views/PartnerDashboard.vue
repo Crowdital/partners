@@ -39,9 +39,25 @@
         <!-- Large content box (table/chart) -->
         <v-card class="large-box mt-6 pa-4">
           <!-- Placeholder: Table or Chart -->
-          <div class="text-center text-gray-600">
-            <h2>{{ partnerName }}</h2>Your table or chart here
-          </div>
+         <v-row>
+    <v-col cols="12" sm="3">
+      <Chart
+        type="doughnut"
+        :data="chartData"
+        :options="chartOptions"
+        class="w-full"
+      />
+    </v-col>
+
+    <v-col cols="12" sm="9">
+      <Chart
+        type="bar"
+        :data="barChartData"
+        :options="barChartOptions"
+        class="h-[30rem] w-full"
+      />
+    </v-col>
+  </v-row>
         </v-card>
 
       </v-container>
@@ -51,10 +67,11 @@
 </template>
 
 <script setup>
-import { ref, onMounted, onUnmounted, computed } from "vue"
+import { ref, onMounted, onUnmounted } from "vue"
 import Sidebar from "@/components/Sidebar.vue"
 import Header from "@/components/Header.vue"
 import StatCard from "@/components/StatCard.vue"
+import Chart from 'primevue/chart'
 import { useAuthStore } from "@/store/auth"
 
 //const stats = ref();
@@ -66,7 +83,7 @@ const isMobile = ref(false)
 
 const auth = useAuthStore()
 
-// handle Header emits
+/**============= handle Header emits ============*/
 const toggleSidebar = () => {
   if (isMobile.value) {
     // On mobile: open/close drawer
@@ -97,7 +114,7 @@ onMounted(async () => {
 });
 
 // Reactive computed properties
-const partnerName = computed(() => auth.partner?.partner?.name || '')
+//const partnerName = computed(() => auth.partner?.partner?.name || '')
 // const partnerEmail = computed(() => auth.partner?.email || '')
 // const partnerPhone = computed(() => auth.partner?.phone || '')
 // const partnerWebsite = computed(() => auth.partner?.website || '')
@@ -106,13 +123,66 @@ const partnerName = computed(() => auth.partner?.partner?.name || '')
 onUnmounted(() => {
   window.removeEventListener("resize", checkMobile)
 })
+
+/**============= doughnut Chart option ============*/
+const chartData = ref({
+  labels: ['Outflow', 'Investment'],
+  datasets: [
+    {
+      data: [70000, 120000],
+      backgroundColor: [
+        '#EF5350',
+        '#66BB6A'
+      ],
+      hoverBackgroundColor: [
+        '#E57373',
+        '#81C784'
+      ]
+    }
+  ]
+})
+
+const chartOptions = ref({
+  plugins: {
+    legend: {
+      position: 'bottom'
+    }
+  }
+})
+
+/**============= Bar chart option ===============*/
+const barChartData = ref({
+  labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'],
+  datasets: [
+    {
+      label: 'Investments',
+      data: [65, 59, 80, 81, 56, 55],
+      backgroundColor: '#64cf69'
+    },
+    {
+      label: 'Withdrawals',
+      data: [28, 48, 40, 19, 86, 27],
+      backgroundColor: '#EF5350'
+    }
+  ]
+})
+
+const barChartOptions = ref({
+  responsive: true,
+  maintainAspectRatio: false,
+  plugins: {
+    legend: {
+      position: 'top'
+    }
+  }
+})
 </script>
 
 <style scoped>
 .main {
   display: flex;
   min-height: 100vh;
-  font-family: sans-serif;
+  /* font-family: sans-serif; */
 }
 
 .sidebar {

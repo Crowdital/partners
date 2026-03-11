@@ -1,6 +1,9 @@
 import { createRouter, createWebHistory } from 'vue-router'
 import Dashboard from '@/views/PartnerDashboard.vue'
 import Product from '@/views/Product.vue'
+import Transaction from '@/views/Transaction.vue'
+import Investment from '@/views/Investment.vue'
+import Wallet from '@/views/Wallet.vue'
 import Login from '@/views/Login.vue'
 
 const routes = [
@@ -16,9 +19,27 @@ const routes = [
     },
     {
         path: '/products',
-        name: 'Product',
+        name: 'Products',
         component: Product,
         meta: { requiresAuth: true, title: 'Products' },
+    },
+    {
+        path: '/transactions',
+        name: 'Transactions',
+        component: Transaction,
+        meta: { requiresAuth: true, title: 'Transactions' },
+    },
+    {
+        path: '/investments',
+        name: 'Investments',
+        component: Investment,
+        meta: { requiresAuth: true, title: 'Investments' },
+    },
+    {
+        path: '/wallets',
+        name: 'Wallets',
+        component: Wallet,
+        meta: { requiresAuth: true, title: 'Wallets' },
     },
     {
         path: '/login',

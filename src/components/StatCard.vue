@@ -10,7 +10,7 @@
 
       <!-- Right icon -->
       <div class="stat-icon">
-        <v-icon :size="40" color="#0f9d58">{{ icon }}</v-icon>
+        <v-icon :size="35" color="#0f9d58">{{ icon }}</v-icon>
       </div>
     </div>
   </v-card>

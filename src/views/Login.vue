@@ -39,27 +39,50 @@
                         </div>
 
                         <!-- Password -->
-                        <div class="flex flex-col gap-2 spacing text-left">
+                        <div class="flex flex-col gap-2 spacing text-left w-full mb-4 relative">
                             <label class="text-sm font-medium text-gray-700">Password</label>
-                            <input v-model="password" type="password" required placeholder="••••••••"
-                                class="modern-input" />
+                            <input v-model="password" :type="showPassword ? 'text' : 'password'" required
+                                placeholder="••••••••" class="modern-input pr-10 w-full" />
+
+                            <!-- Eye icon -->
+                            <button type="button" @click="togglePassword"
+                                class="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-500 hover:text-black">
+                                <svg v-if="!showPassword" xmlns="http://www.w3.org/2000/svg" fill="none"
+                                    viewBox="0 0 24 24" stroke="currentColor" class="w-5 h-5">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M2.458 12C3.732 7.943 7.523 5 12 5c4.477 0 8.268 2.943 9.542 7-1.274 4.057-5.065 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                                </svg>
+
+                                <svg v-else xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
+                                    stroke="currentColor" class="w-5 h-5">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M13.875 18.825A10.05 10.05 0 0112 19c-4.477 0-8.268-2.943-9.542-7a10.05 10.05 0 012.171-3.386m1.348-1.348A10.05 10.05 0 0112 5c4.477 0 8.268 2.943 9.542 7a10.05 10.05 0 01-1.639 3.15M3 3l18 18" />
+                                </svg>
+                            </button>
                         </div>
 
                         <!-- Remember / Forgot -->
                         <div class="w-full flex justify-between justify-between mt-4 text-left spacing">
                             <!-- Left: Remember me -->
-                            <label class="flex items-center cursor-pointer">
+                            <!-- <label class="flex items-center cursor-pointer">
                                 <input type="checkbox" v-model="remember" class="h-5 w-5 accent-black rounded-sm" />
                                 <span class="text-sm font-medium text-gray-800">
                                     Remember me
                                 </span>
-                            </label>
+                            </label> -->
+                            <div class="flex items-center cursor-pointer">
+                                <Checkbox v-model="pizza" inputId="ingredient1" name="pizza" value="Cheese" />
+                                <label for="ingredient1"> Remember me </label>
+                                <!-- Right: Forgot password -->
+                                <button type="button" @click="forgotPassword"
+                                    class="text-sm font-medium text-gray-600 hover:text-black transition-colors m-space">
+                                    Forgot password?
+                                </button>
+                            </div>
 
-                            <!-- Right: Forgot password -->
-                            <button type="button" @click="forgotPassword"
-                                class="text-sm font-medium text-gray-600 hover:text-black transition-colors m-space">
-                                Forgot password?
-                            </button>
+
                         </div>
                         <!-- Submit -->
                         <button type="submit" :disabled="loading" class="login-button">
@@ -80,6 +103,7 @@
 import { ref } from "vue"
 import { useRouter } from "vue-router"
 import { login } from "@/api/auth"
+import Checkbox from 'primevue/checkbox';
 
 const router = useRouter()
 
@@ -88,26 +112,33 @@ const password = ref("")
 const error = ref("")
 const loading = ref(false)
 
+/**============= Show or hide password   ================*/
+const showPassword = ref(false)
+
+const togglePassword = () => {
+    showPassword.value = !showPassword.value
+}
+
 
 const handleLogin = async () => {
-  error.value = ""
-  loading.value = true
-  try {
-    const res = await login({
-      identifier: email.value,
-      password: password.value,
-    })
-    localStorage.setItem("token", res.data.data.token)
-    router.push("/dashboard")
-  } catch (e) {
-    error.value = e.response?.data?.message || "Login failed"; //e.message || "Invalid credentials"
-  } finally {
-    loading.value = false
-  }
+    error.value = ""
+    loading.value = true
+    try {
+        const res = await login({
+            identifier: email.value,
+            password: password.value,
+        })
+        localStorage.setItem("token", res.data.data.token)
+        router.push("/dashboard")
+    } catch (e) {
+        error.value = e.response?.data?.message || "Login failed"; //e.message || "Invalid credentials"
+    } finally {
+        loading.value = false
+    }
 }
 
 const forgotPassword = () => {
-  router.push("/forgot-password")
+    router.push("/forgot-password")
 }
 </script>
 
@@ -198,8 +229,23 @@ const forgotPassword = () => {
     margin-bottom: 1em;
 }
 
-.m-space{
-    margin-left: 10rem !important;
+.m-space {
+    margin-left: 9.5rem !important;
+}
+
+.modern-input.pr-10 {
+    padding-right: 2.5rem;
+    /* enough space for eye button */
+}
+
+.relative {
+    position: relative;
+}
+
+/* Button positioned over the input */
+.absolute {
+    position: absolute;
+    cursor: pointer;
 }
 
 /* Mobile */
@@ -207,11 +253,13 @@ const forgotPassword = () => {
     .login-wrapper {
         flex-direction: column;
     }
+
     .login-left {
         display: none;
     }
-    .m-space{
-    margin-left: 7rem !important;
-}
+
+    .m-space {
+        margin-left: 7rem !important;
+    }
 }
 </style>
