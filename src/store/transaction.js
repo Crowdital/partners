@@ -1,39 +1,16 @@
 import { defineStore } from "pinia"
-import { fetchDashboardData } from "@/api/dashboard"
-//import { fetchTransactionData } from "@/api/transaction"
+import { fetchTransactionData } from "@/api/transaction"
 
-export const useAuthStore = defineStore("auth", {
+export const useTransactStore = defineStore("transaction", {
   state: () => ({
-    partner: null,
-    products: []
+    transactions: null,
   }),
 
   actions: {
-    async loadPartner() {
-      const res = await fetchDashboardData()
-      this.partner = res.data.data.dashboard_data
-      //console.log("Partner loaded:", res.data.data.dashboard_data)
+    async loadTransaction() {
+      const res = await fetchTransactionData()
+      this.transactions = res.data.data
+      console.log("Transaction loaded:", res.data.data)
     },
-
-    // async loadTransaction() {
-    //     const res = await fetchTransactionData()
-    // }
-
-    // async loadProducts() {
-    //   try {
-    //     const res = await fetchProductData()
-    //     this.products = res.data.data.products || []
-    //     //console.log("Products loaded:", res.data.data.products)
-    //   } catch (error) {
-    //     console.error("Failed to load products:", error)
-    //     this.products = []
-    //   }
-    // },
-
-    // logout() {
-    //   localStorage.removeItem("token")
-    //   this.partner = null
-    //   this.products = []
-    // }
   }
 })

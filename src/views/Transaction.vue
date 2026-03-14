@@ -14,20 +14,20 @@
         <!-- Stats -->
         <v-row class="stats mt-4" dense>
           <v-col cols="12" sm="3">
-            <StatCard title="Total Transaction" :value="activeProducts" icon="mdi-check-circle-outline"
-              iconColor="#22c55e" subtext="24 new since last visit" />
+            <StatCard title="Total Successful Transaction" :value="formatCurrencyCompact(totalSuccesfullTransations)" icon="mdi-wallet-plus-outline"
+              iconColor="#22c55e" :subtext="`${formatCurrency(totalSuccesfullTransations)} From ${totalTransationsCount} Transactions`" />
           </v-col>
           <v-col cols="12" sm="3">
-            <StatCard title="Completed Transaction" :value="inactiveProducts" icon="mdi-close-circle-outline"
-              iconColor="#ef4444" subtext="24 new since last visit" />
+            <StatCard title="Completed Transaction" :value="completedTransations" icon="mdi-card-plus-outline"
+              iconColor="#ef4444" :subtext="`From ${totalTransationsCount} Total Transactions`" />
           </v-col>
           <v-col cols="12" sm="3">
-            <StatCard title="Pending Transaction" :value="activeProducts" icon="mdi-check-circle-outline"
-              iconColor="#22c55e" subtext="24 new since last visit" />
+            <StatCard title="Pending Transaction" :value="pendingTransations" icon="mdi-credit-card-lock-outline"
+              iconColor="#22c55e" :subtext="`From ${totalTransationsCount} Total Transactions`" />
           </v-col>
           <v-col cols="12" sm="3">
-            <StatCard title="Failed Transaction" :value="inactiveProducts" icon="mdi-close-circle-outline"
-              iconColor="#ef4444" subtext="24 new since last visit" />
+            <StatCard title="Failed Transaction" :value="failedTransations" icon="mdi-close-circle-outline"
+              iconColor="#ef4444" :subtext="`From ${totalTransationsCount} Total Transactions`" />
           </v-col>
         </v-row>
 
@@ -43,9 +43,9 @@
           </div>
 
           <!-- PrimeVue DataTable with search -->
-          <DataTable v-model:filters="filters" :value="products" paginator showGridlines :rows="10" dataKey="id"
+          <DataTable v-model:filters="filters" :value="transactions" paginator :rows="10" dataKey="id"
             stripedRows class="modern-table" :rowsPerPageOptions="[5, 10, 20, 50]" tableStyle="min-width: 50rem"
-            filterDisplay="menu" :globalFilterFields="['product_name', 'description']">
+            filterDisplay="menu" :globalFilterFields="['transaction_id', 'uuid', 'firstname', 'lastname','transaction_source', 'type']">
 
             <!-- Empty table -->
             <template #empty>
@@ -58,15 +58,46 @@
             </template>
 
             <!-- Product Column -->
-            <Column header="Product">
+            <Column header="Transaction ID">
               <template #body="slotProps">
                 <div class="product-cell">
-                  <img
-                    :src="slotProps.data.product_image ? `${STORAGE_URL}/${slotProps.data.product_image}` : defaultImage"
-                    class="product-image" />
                   <div>
-                    <div class="product-name">{{ slotProps.data.product_name }}</div>
-                    <div class="product-desc">{{ truncate(slotProps.data.description) }}</div>
+                    <div class="product-name">{{ slotProps.data.transaction_id }}</div>
+                    <div class="product-desc">Reference: {{ slotProps.data.uuid }}</div>
+                  </div>
+                </div>
+              </template>
+            </Column>
+
+            <!--User Column-->
+            <Column header="Customer">
+              <template #body="slotProps">
+                <div class="product-cell">
+                  <div>
+                    <div class="product-name">{{ slotProps.data.user.firstname }} {{ slotProps.data.user.lastname }}</div>
+                    <div class="product-desc">{{ slotProps.data.description }}</div>
+                  </div>
+                </div>
+              </template>
+            </Column>
+
+            <!--Amount Column-->
+            <Column header="Amount">
+              <template #body="slotProps">
+                <div class="product-cell">
+                  <div>
+                    {{ formatCurrency(slotProps.data.amount) }}
+                  </div>
+                </div>
+              </template>
+            </Column>
+
+            <!--Type Column-->
+            <Column header="Type">
+              <template #body="slotProps">
+                <div class="product-cell">
+                  <div>
+                    {{ slotProps.data.type }}
                   </div>
                 </div>
               </template>
@@ -75,46 +106,35 @@
             <!-- Status Column -->
             <Column header="Status">
               <template #body="slotProps">
-                <span :class="['status-pill', slotProps.data.is_active ? 'status-active' : 'status-inactive']">
-                  {{ slotProps.data.is_active ? 'Active' : 'Inactive' }}
+                <span :class="['status-pill', slotProps.data.status ? 'status-active' : 'status-inactive']">
+                  {{ slotProps.data.status ? 'successful' : 'pending' }}
                 </span>
               </template>
             </Column>
 
-            <!-- Created Column -->
-            <Column header="Created">
+            <!--Source Column-->
+            <Column header="Source">
               <template #body="slotProps">
-                {{ formatDate(slotProps.data.created_at) }}
+                <div class="product-cell">
+                  <div>
+                    {{ slotProps.data.transaction_source }}
+                  </div>
+                </div>
               </template>
             </Column>
 
-            <!-- Actions Column -->
-            <Column header="" style="width:120px">
+            <!-- Created Column -->
+            <Column header="Date and Time">
               <template #body="slotProps">
-                <v-menu>
-                  <template #activator="{ props }">
-                    <v-btn icon v-bind="props" variant="text">
-                      <v-icon>mdi-dots-horizontal</v-icon>
-                    </v-btn>
-                  </template>
-                  <v-list>
-                    <v-list-item @click="openEditModal(slotProps.data)">
-                      <v-icon start>mdi-pencil</v-icon>
-                      Edit
-                    </v-list-item>
-                    <v-list-item @click="deleteProduct(slotProps.data)">
-                      <v-icon start color="error">mdi-trash-can-outline</v-icon>
-                      Delete
-                    </v-list-item>
-                  </v-list>
-                </v-menu>
+                {{ formatDate(slotProps.data.transaction_date) }}
+                <div class="product-desc">{{ slotProps.data.transaction_time }}</div>
               </template>
             </Column>
 
           </DataTable>
         </v-card>
         <!-- Edit Modal -->
-        <v-dialog v-model="editDialog" max-width="500px">
+        <!-- <v-dialog v-model="editDialog" max-width="500px">
           <v-card>
             <v-card-title>Edit Product</v-card-title>
             <v-card-text>
@@ -128,7 +148,7 @@
               <v-btn color="primary" @click="saveEdit">Save</v-btn>
             </v-card-actions>
           </v-card>
-        </v-dialog>
+        </v-dialog> -->
       </v-container>
     </v-main>
   </v-app>
@@ -140,22 +160,23 @@ import Sidebar from "@/components/Sidebar.vue"
 import Header from "@/components/Header.vue"
 import StatCard from "@/components/StatCard.vue"
 import { useAuthStore } from "@/store/auth"
-import { STORAGE_URL } from "@/api/env"
+import { useTransactStore } from "@/store/transaction"
+import { formatCurrencyCompact, formatCurrency, formatDate } from "@/util"
 
 import DataTable from "primevue/datatable"
 import Column from "primevue/column"
 import Button from "primevue/button"
 import InputText from "primevue/inputtext"
 
-import dayjs from "dayjs"
+// import dayjs from "dayjs"
 
 const auth = useAuthStore()
+const tr = useTransactStore()
 
 const isSidebarCollapsed = ref(false)
 const drawerOpen = ref(false)
 const isMobile = ref(false)
 const filters = ref({ global: { value: null, matchMode: "contains" } })
-const defaultImage = "https://via.placeholder.com/40"
 
 /* Mobile */
 const toggleSidebar = () => {
@@ -173,23 +194,44 @@ onMounted(async () => {
   checkMobile()
   window.addEventListener("resize", checkMobile)
   await auth.loadPartner()
-  await auth.loadProducts()
+  await tr.loadTransaction()
 })
 
 onUnmounted(() => {
   window.removeEventListener("resize", checkMobile)
 })
 
-/* Products */
-const products = computed(() => auth.products || [])
+/* Transaction */
+ const transactions = computed(() => tr.transactions || [])
 
-/* Stats */
-const activeProducts = computed(() => products.value.filter(p => p.is_active).length)
-const inactiveProducts = computed(() => products.value.filter(p => !p.is_active).length)
+ /* Stats */
+//  const totalTransationsAmount = computed(() =>
+//   transactions.value.reduce((sum, tr) => sum + Number(tr.amount || 0), 0)
+// )
+
+//total succesfull transaction
+const totalSuccesfullTransations = computed(() =>
+  transactions.value
+    ?.filter(tr => tr.status === "successful")
+    .reduce((sum, tr) => sum + Number(tr.amount || 0), 0)
+)
+
+ const completedTransations = computed(() =>
+  transactions.value.filter(i => i.status === "successful").length
+)
+
+const pendingTransations = computed(() =>
+  transactions.value.filter(i => i.status === "pending").length
+)
+
+const failedTransations = computed(() =>
+  transactions.value.filter(i => i.status === "failed").length
+)
+
+const totalTransationsCount = computed(() => transactions.value.length)
 
 /* Utils */
-const truncate = (text) => !text ? "" : text.length > 150 ? text.substring(0, 150) + "..." : text
-const formatDate = (date) => dayjs(date).format("MMM DD, YYYY")
+// const truncate = (text) => !text ? "" : text.length > 150 ? text.substring(0, 150) + "..." : text
 
 // /* Actions */
 // const editProduct = (product) => console.log("Edit", product)
@@ -201,19 +243,19 @@ const clearFilters = () => {
 }
 
 // Edit Modal
-const editDialog = ref(false)
-const selectedProduct = ref({})
+// const editDialog = ref(false)
+// const selectedProduct = ref({})
 
-const openEditModal = (product) => {
-  selectedProduct.value = { ...product } // copy to avoid mutating table directly
-  editDialog.value = true
-}
+// const openEditModal = (product) => {
+//   selectedProduct.value = { ...product } // copy to avoid mutating table directly
+//   editDialog.value = true
+// }
 
-const closeEditModal = () => editDialog.value = false
-const saveEdit = () => {
-  console.log("Save", selectedProduct.value)
-  editDialog.value = false
-}
+// const closeEditModal = () => editDialog.value = false
+// const saveEdit = () => {
+//   console.log("Save", selectedProduct.value)
+//   editDialog.value = false
+// }
 </script>
 
 <style scoped>
@@ -313,5 +355,11 @@ const saveEdit = () => {
   border-radius: 10px;
   font-weight: 600;
   transition: all 0.25s ease;
+}
+:deep(.modern-table .p-datatable-thead > tr > th) {
+  background: #eef7f0;
+  color: #065f46;
+  font-weight: 600;
+  border-bottom: 2px solid #c1edc3;
 }
 </style>
