@@ -1,11 +1,13 @@
 import { defineStore } from "pinia"
 import { fetchDashboardData } from "@/api/dashboard"
 import { fetchProductData } from "@/api/product"
+import { fetchSingleProductData } from "@/api/product"
 
 export const useAuthStore = defineStore("auth", {
   state: () => ({
     partner: null,
-    products: []
+    products: [],
+    singleProduct: null
   }),
 
   actions: {
@@ -19,10 +21,20 @@ export const useAuthStore = defineStore("auth", {
       try {
         const res = await fetchProductData()
         this.products = res.data.data.products || []
-        //console.log("Products loaded:", res.data.data.products)
+        //console.log("Products loaded:", res.data.data)
       } catch (error) {
         console.error("Failed to load products:", error)
         this.products = []
+      }
+    },
+
+    async loadSingleProduct(id) {
+      try {
+        const res = await fetchSingleProductData(id)
+        this.singleProduct = res.data.data
+        console.log(res.data.data)
+      } catch (error) {
+        console.error("Failed to load product:", error)
       }
     },
 
@@ -30,6 +42,7 @@ export const useAuthStore = defineStore("auth", {
       localStorage.removeItem("token")
       this.partner = null
       this.products = []
+      
     }
   }
 })

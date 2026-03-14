@@ -5,6 +5,8 @@ import Transaction from '@/views/Transaction.vue'
 import Investment from '@/views/Investment.vue'
 import Wallet from '@/views/Wallet.vue'
 import Login from '@/views/Login.vue'
+import Profile from '@/views/Profile.vue'
+import ProductDetail from '@/views/ProductDetails.vue'
 
 const routes = [
     {
@@ -24,6 +26,12 @@ const routes = [
         meta: { requiresAuth: true, title: 'Products' },
     },
     {
+        path: "/products/:id",
+        name: "ProductDetails",
+        component: ProductDetail,
+        meta: { requiresAuth: true, title: 'Details' },
+    },
+    {
         path: '/transactions',
         name: 'Transactions',
         component: Transaction,
@@ -40,6 +48,12 @@ const routes = [
         name: 'Wallets',
         component: Wallet,
         meta: { requiresAuth: true, title: 'Wallets' },
+    },
+    {
+        path: '/profile',
+        name: 'Profile',
+        component: Profile,
+        meta: { requiresAuth: true, title: 'Profile' },
     },
     {
         path: '/login',

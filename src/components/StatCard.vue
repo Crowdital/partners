@@ -50,6 +50,12 @@ defineProps({
   box-shadow: 0 8px 20px rgba(0,0,0,0.12);
 }
 
+.stat-text {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+}
+
 .stat-content {
   display: flex;
   width: 100%;
@@ -60,7 +66,7 @@ defineProps({
 .stat-text {
   display: flex;
   flex-direction: column;
-  justify-content: center;
+  /* justify-content: center; */
 }
 
 .card-title {
@@ -78,7 +84,8 @@ defineProps({
 
 .card-subtext {
   font-size: 12px;
-  color: #888;
+  color: #536f44;
+  font-weight: 500;
 }
 
 .stat-icon {

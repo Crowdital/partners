@@ -215,4 +215,10 @@ const barChartOptions = ref({
 .stats .v-card {
   text-align: center;
 }
+:deep(.modern-table .p-datatable-thead > tr > th) {
+  background: #eef7f0;
+  color: #065f46;
+  font-weight: 600;
+  border-bottom: 2px solid #c1edc3;
+}
 </style>
