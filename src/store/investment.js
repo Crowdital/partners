@@ -10,7 +10,6 @@ export const useInvStore = defineStore("investment", {
     async loadInvestment() {
       const res = await fetchInvestmentData()
       this.investments = res.data.data
-      //console.log("investment loaded:", res.data.data)
     },
   }
 })

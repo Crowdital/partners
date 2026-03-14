@@ -14,21 +14,41 @@
         <!-- Stats -->
         <v-row class="stats mt-4" dense>
           <v-col cols="12" sm="3">
-            <StatCard title="Total Investment" :value="activeProducts" icon="mdi-cash-multiple"
+            <StatCard title="Total Successful Investment" :value="formatCurrencyCompact(totalInvestmentAmount)" icon="mdi-transfer"
+              iconColor="#22c55e" :subtext="`${formatCurrency(totalInvestmentAmount)} From ${totalInvestmentCount} Investments`" />
+          </v-col>
+          <v-col cols="12" sm="3">
+            <StatCard title="Completed Investment" :value="completedInvestments" icon="mdi-cash-check"
+              iconColor="#ef4444" :subtext="`From ${totalInvestmentCount} Investments`" />
+          </v-col>
+          <v-col cols="12" sm="3">
+            <StatCard title="Investment Count" :value="totalInvestmentCount" icon="mdi-counter"
+              iconColor="#22c55e" :subtext="`From ${totalInvestmentCount} Investments`" />
+          </v-col>
+          <v-col cols="12" sm="3">
+            <StatCard title="Active Investment" :value="activeInvestments" icon="mdi-cash-fast"
+              iconColor="#ef4444" :subtext="`From ${totalInvestmentCount} Investments`" />
+          </v-col>
+        </v-row>
+
+        <!-- Stats row 2 -->
+        <v-row class="stats mt-4" dense>
+          <v-col cols="12" sm="3">
+            <StatCard title="Accumulated Interest" :value="formatCurrencyCompact(totalInterestAmount)" icon="mdi-card-plus-outline"
+              iconColor="#22c55e" :subtext="`From ${totalInvestmentCount} Investments`" />
+          </v-col>
+          <v-col cols="12" sm="3">
+            <StatCard title="Pending Investment" :value="pendingInvestments" icon="mdi-cash-lock"
+              iconColor="#ef4444" :subtext="`From ${totalInvestmentCount} Investments`" />
+          </v-col>
+          <!-- <v-col cols="12" sm="3">
+            <StatCard title="Investment Count" :value="totalInvestmentCount" icon="mdi-cash-lock"
               iconColor="#22c55e" subtext="24 new since last visit" />
           </v-col>
           <v-col cols="12" sm="3">
-            <StatCard title="Completed Investment" :value="inactiveProducts" icon="mdi-cash-check"
+            <StatCard title="Active Investment" :value="activeInvestments" icon="mdi-account-group-outline"
               iconColor="#ef4444" subtext="24 new since last visit" />
-          </v-col>
-          <v-col cols="12" sm="3">
-            <StatCard title="Pending Investment" :value="activeProducts" icon="mdi-cash-lock"
-              iconColor="#22c55e" subtext="24 new since last visit" />
-          </v-col>
-          <v-col cols="12" sm="3">
-            <StatCard title="Active Investor" :value="inactiveProducts" icon="mdi-account-group-outline"
-              iconColor="#ef4444" subtext="24 new since last visit" />
-          </v-col>
+          </v-col> -->
         </v-row>
 
         <!-- Table Card -->
@@ -45,7 +65,7 @@
           <!-- PrimeVue DataTable with search -->
           <DataTable v-model:filters="filters" :value="investments" paginator :rows="10" dataKey="id"
             stripedRows class="modern-table" :rowsPerPageOptions="[5, 10, 20, 50]" tableStyle="min-width: 50rem"
-            filterDisplay="menu" :globalFilterFields="['product_name', 'description']">
+            filterDisplay="menu" :globalFilterFields="['user.profile.firstname', 'user.profile.lastname', 'product.name', 'user.email']">
 
             <!-- Empty table -->
             <template #empty>
@@ -65,8 +85,8 @@
                     :src="slotProps.data.product.image ? `${STORAGE_URL}/${slotProps.data.product.image}` : defaultImage"
                     class="product-image" />
                   <div>
-                    <div class="product-name">{{ slotProps.data.user.profile.firstname }} {{ slotProps.data.user.profile.lastname }}</div>
-                    <div class="product-desc">{{ truncate(slotProps.data.user.email) }}</div>
+                    <div class="product-name">{{ slotProps.data.user.profile.account_id }}</div>
+                    <div class="product-desc">{{ truncate(slotProps.data.user.profile.firstname) }} {{ truncate(slotProps.data.user.profile.lastname)[0] }}</div>
                   </div>
                 </div>
               </template>
@@ -91,15 +111,15 @@
             <!-- Status Column -->
             <Column header="Amount">
               <template #body="slotProps">
-                <div class="product-name">₦{{ parseFloat(slotProps.data.price) }}</div>
+                {{ formatCurrency(slotProps.data.price) }}
               </template>
             </Column>
 
             <!-- Status Column -->
             <Column header="Interest">
               <template #body="slotProps">
-                <div class="product-name">₦{{ parseFloat(slotProps.data.accumulated_yield) }}</div>
-                <div class="product-desc">At {{ parseFloat(slotProps.data.product.interest_rate) }}% p.a</div>
+                <div class="">{{ formatCurrency(slotProps.data.accumulated_yield) }}</div>
+                <div class="">@ {{ parseFloat(slotProps.data.product.interest_rate) }}% p.a</div>
               </template>
             </Column>
 
@@ -109,48 +129,8 @@
                 From {{ formatDate(slotProps.data.created_at) }} to {{ formatDate(slotProps.data.maturity_date) }}
               </template>
             </Column>
-
-            <!-- Actions Column -->
-            <!-- <Column header="" style="width:120px">
-              <template #body="slotProps">
-                <v-menu>
-                  <template #activator="{ props }">
-                    <v-btn icon v-bind="props" variant="text">
-                      <v-icon>mdi-dots-horizontal</v-icon>
-                    </v-btn>
-                  </template>
-                  <v-list>
-                    <v-list-item @click="openEditModal(slotProps.data)">
-                      <v-icon start>mdi-pencil</v-icon>
-                      Edit
-                    </v-list-item>
-                    <v-list-item @click="deleteProduct(slotProps.data)">
-                      <v-icon start color="error">mdi-trash-can-outline</v-icon>
-                      Delete
-                    </v-list-item>
-                  </v-list>
-                </v-menu>
-              </template>
-            </Column> -->
-
           </DataTable>
         </v-card>
-        <!-- Edit Modal -->
-        <!-- <v-dialog v-model="editDialog" max-width="500px">
-          <v-card>
-            <v-card-title>Edit Product</v-card-title>
-            <v-card-text>
-              <v-text-field v-model="selectedProduct.product_name" label="Product Name" />
-              <v-textarea v-model="selectedProduct.description" label="Description" />
-              <v-switch v-model="selectedProduct.is_active" label="Active" />
-            </v-card-text>
-            <v-card-actions>
-              <v-spacer></v-spacer>
-              <v-btn text @click="closeEditModal">Cancel</v-btn>
-              <v-btn color="primary" @click="saveEdit">Save</v-btn>
-            </v-card-actions>
-          </v-card>
-        </v-dialog> -->
       </v-container>
     </v-main>
   </v-app>
@@ -164,13 +144,12 @@ import StatCard from "@/components/StatCard.vue"
 import { useAuthStore } from "@/store/auth"
 import { useInvStore } from "@/store/investment"
 import { STORAGE_URL } from "@/api/env"
+import { formatCurrencyCompact, formatCurrency, formatDate } from "@/util"
 
 import DataTable from "primevue/datatable"
 import Column from "primevue/column"
 import Button from "primevue/button"
 import InputText from "primevue/inputtext"
-
-import dayjs from "dayjs"
 
 
 const inv = useInvStore();
@@ -199,9 +178,6 @@ onMounted(async () => {
   window.addEventListener("resize", checkMobile)
   await inv.loadInvestment()
   await auth.loadPartner()
-  //await auth.loadProducts()
-  
-  console.log(investments.value)
 })
 
 onUnmounted(() => {
@@ -210,16 +186,34 @@ onUnmounted(() => {
 
 /* Products */
 const investments = computed(() => inv.investments || [])
-const products = computed(() => auth.products || [])
-
-
-/* Stats */
-const activeProducts = computed(() => products.value.filter(p => p.is_active).length)
-const inactiveProducts = computed(() => products.value.filter(p => !p.is_active).length)
 
 /* Utils */
 const truncate = (text) => !text ? "" : text.length > 150 ? text.substring(0, 150) + "..." : text
-const formatDate = (date) => dayjs(date).format("MMM DD, YYYY")
+
+
+//Stat Card
+const activeInvestments = computed(() =>
+  investments.value.filter(i => i.status === "active").length
+)
+
+const completedInvestments = computed(() =>
+  investments.value.filter(i => i.status === "completed").length
+)
+
+const pendingInvestments = computed(() =>
+  investments.value.filter(i => i.status === "pending").length
+)
+
+const totalInvestmentCount = computed(() => investments.value.length)
+
+const totalInvestmentAmount = computed(() =>
+  investments.value.reduce((sum, inv) => sum + Number(inv.price || 0), 0)
+)
+
+const totalInterestAmount = computed(() =>
+  investments.value.reduce((sum, inv) => sum + Number(inv.accumulated_yield || 0), 0)
+)
+
 
 // /* Actions */
 // const editProduct = (product) => console.log("Edit", product)
@@ -343,5 +337,11 @@ const clearFilters = () => {
   border-radius: 10px;
   font-weight: 600;
   transition: all 0.25s ease;
+}
+:deep(.modern-table .p-datatable-thead > tr > th) {
+  background: #eef7f0;
+  color: #065f46;
+  font-weight: 600;
+  border-bottom: 2px solid #c1edc3;
 }
 </style>

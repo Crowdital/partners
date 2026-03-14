@@ -91,23 +91,37 @@
             </Column>
 
             <!-- Min tenure Column -->
-            <Column header="Minimum Tenure">
+            <Column header="Maturity Date">
               <template #body="slotProps">
-                {{ slotProps.data.min_tenure }}
+                {{ formatDate(slotProps.data.maturity_date) }}
               </template>
             </Column>
 
-            <!-- Min Amount Column-->
-            <Column header="Minimum Amount">
+            <!-- Available Volume Column-->
+            <Column header="Available Volume">
               <template #body="slotProps">
-                {{ slotProps.data.min_amount }}
+                {{ formatNumber(slotProps.data.available_volume) }}
+              </template>
+            </Column>
+
+            <!-- Purchased Volume Column-->
+            <Column header="Purchased Volume">
+              <template #body="slotProps">
+                {{ formatNumber(slotProps.data.purchased_volume) }}
+              </template>
+            </Column>
+
+            <!-- Balance withdrawn Column-->
+            <Column header="Balance WIthdrawn">
+              <template #body="slotProps">
+                {{ formatCurrency(slotProps.data.balance_withdrawn) }}
               </template>
             </Column>
 
             <!-- Interest Column -->
             <Column header="Interest(%)">
               <template #body="slotProps">
-                {{ parseFloat(slotProps.data.interest) }}
+                {{ parseFloat(slotProps.data.interest) }}%
               </template>
             </Column>
 
@@ -128,15 +142,17 @@
                     </v-btn>
                   </template>
                   <v-list>
-                    <v-list-item @click="openEditModal(slotProps.data)">
-                      <v-icon start>mdi-pencil</v-icon>
-                      Edit
-                    </v-list-item>
-                    <v-list-item @click="deleteProduct(slotProps.data)">
-                      <v-icon start color="error">mdi-trash-can-outline</v-icon>
-                      Delete
+                    <v-list-item @click="viewProduct(slotProps.data)">
+                      <v-icon start>mdi-eye-outline</v-icon>
+                      View More
                     </v-list-item>
                   </v-list>
+                  <!-- <v-list>
+                    <v-list-item @click="openEditModal(slotProps.data)">
+                      <v-icon start>mdi-eye-outline</v-icon>
+                      View More
+                    </v-list-item>
+                  </v-list> -->
                 </v-menu>
               </template>
             </Column>
@@ -144,7 +160,7 @@
           </DataTable>
         </v-card>
         <!-- Edit Modal -->
-        <v-dialog v-model="editDialog" max-width="500px">
+        <!-- <v-dialog v-model="editDialog" max-width="500px">
           <v-card>
             <v-card-title>Edit Product</v-card-title>
             <v-card-text>
@@ -158,7 +174,7 @@
               <v-btn color="primary" @click="saveEdit">Save</v-btn>
             </v-card-actions>
           </v-card>
-        </v-dialog>
+        </v-dialog> -->
       </v-container>
     </v-main>
   </v-app>
@@ -166,6 +182,7 @@
 
 <script setup>
 import { ref, onMounted, onUnmounted, computed } from "vue"
+import { useRouter } from "vue-router"
 import Sidebar from "@/components/Sidebar.vue"
 import Header from "@/components/Header.vue"
 import StatCard from "@/components/StatCard.vue"
@@ -176,8 +193,7 @@ import DataTable from "primevue/datatable"
 import Column from "primevue/column"
 import Button from "primevue/button"
 import InputText from "primevue/inputtext"
-
-import dayjs from "dayjs"
+import { formatNumber, formatDate, formatCurrency } from "@/util"
 
 const auth = useAuthStore()
 
@@ -204,7 +220,6 @@ onMounted(async () => {
   window.addEventListener("resize", checkMobile)
   await auth.loadPartner()
   await auth.loadProducts()
-  // console.log(products.value)
 })
 
 onUnmounted(() => {
@@ -222,7 +237,6 @@ const inactiveProducts = computed(() => products.value.filter(p => !p.is_active)
 
 /* Utils */
 const truncate = (text) => !text ? "" : text.length > 60 ? text.substring(0, 60) + "..." : text
-const formatDate = (date) => dayjs(date).format("MMM DD, YYYY")
 
 /* Clear filters */
 const clearFilters = () => {
@@ -230,18 +244,31 @@ const clearFilters = () => {
 }
 
 // Edit Modal
-const editDialog = ref(false)
-const selectedProduct = ref({})
+// const editDialog = ref(false)
+// const selectedProduct = ref({})
 
-const openEditModal = (product) => {
-  selectedProduct.value = { ...product } // copy to avoid mutating table directly
-  editDialog.value = true
-}
+// const openEditModal = (product) => {
+//   selectedProduct.value = { ...product } // copy to avoid mutating table directly
+//   editDialog.value = true
+// }
 
-const closeEditModal = () => editDialog.value = false
-const saveEdit = () => {
-  console.log("Save", selectedProduct.value)
-  editDialog.value = false
+// const closeEditModal = () => editDialog.value = false
+// const saveEdit = () => {
+//   console.log("Save", selectedProduct.value)
+//   editDialog.value = false
+// }
+
+const router = useRouter()
+
+const viewProduct = (product) => {
+  const id = product.product_id || product.id
+
+  if (!id) {
+    console.error("Product ID missing:", product)
+    return
+  }
+
+  router.push(`/products/${id}`)
 }
 </script>
 
