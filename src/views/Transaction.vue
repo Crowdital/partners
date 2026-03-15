@@ -107,7 +107,7 @@
             <Column header="Status">
               <template #body="slotProps">
                 <span :class="['status-pill', slotProps.data.status ? 'status-active' : 'status-inactive']">
-                  {{ slotProps.data.status ? 'successful' : 'pending' }}
+                  {{ slotProps.data.status ? 'Successful' : 'Pending' }}
                 </span>
               </template>
             </Column>

@@ -1,5 +1,6 @@
 import { defineStore } from "pinia"
 import { fetchDashboardData } from "@/api/dashboard"
+import { fetchDashboardStat } from "@/api/dashboard"
 import { fetchProductData } from "@/api/product"
 import { fetchSingleProductData } from "@/api/product"
 
@@ -7,7 +8,8 @@ export const useAuthStore = defineStore("auth", {
   state: () => ({
     partner: null,
     products: [],
-    singleProduct: null
+    singleProduct: null,
+    stat: []
   }),
 
   actions: {
@@ -15,6 +17,11 @@ export const useAuthStore = defineStore("auth", {
       const res = await fetchDashboardData()
       this.partner = res.data.data.dashboard_data
       //console.log("Partner loaded:", res.data.data.dashboard_data)
+    },
+
+    async loadPartnerStat() {
+      const res = await fetchDashboardStat()
+      this.stat = res.data.data
     },
 
     async loadProducts() {
