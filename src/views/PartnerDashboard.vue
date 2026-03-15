@@ -19,20 +19,40 @@
         <!-- Stat Cards -->
         <v-row class="stats mt-4" dense>
           <v-col cols="12" sm="6" md="3">
-            <StatCard title="Total Investor" value="1,234" subtext="24 new since last visit"
+            <StatCard title="Total Investor" :value="totalInvestor" subtext="Across all investment"
               icon="mdi-account-group-outline" iconColor="#64cf69" />
           </v-col>
           <v-col cols="12" sm="6" md="3">
-            <StatCard title="Total Invested" value="&#8358;56,700" subtext="24 new since last visit" icon="mdi-transfer"
+            <StatCard title="Total Investment" :value="formatCurrencyCompact(totalInvestment)" subtext="Across all investment" icon="mdi-transfer"
               iconColor="#64cf69" />
           </v-col>
           <v-col cols="12" sm="6" md="3">
-            <StatCard title="Total Portfolio" value="890" subtext="24 new since last visit" icon="mdi-briefcase-outline"
+            <StatCard title="Total Product" :value="totalProducts" subtext="Found in portfolio" icon="mdi-briefcase-outline"
               iconColor="#64cf69" />
           </v-col>
           <v-col cols="12" sm="6" md="3">
-            <StatCard title="Investment Balance" value="&#8358;12,345" subtext="24 new since last visit"
+            <StatCard title="Wallet Balance" :value="formatCurrencyCompact(walletBalnce)" subtext="As of today"
               icon="mdi-wallet-outline" iconColor="#64cf69" />
+          </v-col>
+        </v-row>
+
+        <!-- Stat Cards row 2-->
+        <v-row class="stats mt-4" dense>
+          <v-col cols="12" sm="6" md="3">
+            <StatCard title="Average Investment" :value="formatCurrency(averageInvestment)" subtext="Across all investment"
+              icon="mdi-ab-testing" iconColor="#64cf69" />
+          </v-col>
+          <v-col cols="12" sm="6" md="3">
+            <StatCard title="Investments This Month" :value="formatCurrency(monthInvestment)" subtext="Across all investment" icon="mdi-calendar-start-outline"
+              iconColor="#64cf69" />
+          </v-col>
+          <v-col cols="12" sm="6" md="3">
+            <StatCard title="Expected Payout" :value="formatCurrencyCompact(expectedPayout)" subtext="Across all investment" icon="mdi-bank-transfer-out"
+              iconColor="#64cf69" />
+          </v-col>
+          <v-col cols="12" sm="6" md="3">
+            <StatCard title="Matured Investment" :value="formatCurrency(matureThisMonth)" subtext="As of today"
+              icon="mdi-gauge-full" iconColor="#64cf69" />
           </v-col>
         </v-row>
 
@@ -67,12 +87,13 @@
 </template>
 
 <script setup>
-import { ref, onMounted, onUnmounted } from "vue"
+import { ref, onMounted, onUnmounted, computed } from "vue"
 import Sidebar from "@/components/Sidebar.vue"
 import Header from "@/components/Header.vue"
 import StatCard from "@/components/StatCard.vue"
 import Chart from 'primevue/chart'
 import { useAuthStore } from "@/store/auth"
+import { formatCurrencyCompact, formatCurrency } from "@/util"
 
 //const stats = ref();
 
@@ -105,12 +126,23 @@ const toggleDarkMode = () => {
   //console.log('Layout: new isDarkMode:', isDarkMode.value)
 }
 
+const stat = computed(() => auth.stat || [])
+
+const totalInvestor = computed(() => stat.value.totalInvestors)
+const totalInvestment = computed(() => stat.value.totalInvestments)
+const walletBalnce = computed(() => stat.value.walletBalance)
+const totalProducts = computed(() => stat.value.totalProducts)
+const averageInvestment = computed(() => stat.value.averageInvestment)
+const monthInvestment = computed(() => stat.value.investmentsThisMonth)
+const expectedPayout = computed(() => stat.value.totalExpectedPayout)
+const matureThisMonth = computed(() => stat.value.maturingThisMonth)
+
 onMounted(async () => {
   checkMobile()
   window.addEventListener("resize", checkMobile)
   await auth.loadPartner()
-  // const res = await fetchDashboardData()
-  // console.log(res.data) // partner info, investments, etc.
+  await auth.loadPartnerStat()
+  console.log(stat.value)
 });
 
 // Reactive computed properties

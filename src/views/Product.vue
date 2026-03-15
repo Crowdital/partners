@@ -228,8 +228,6 @@ onUnmounted(() => {
 
 /* Products */
 const products = computed(() => auth.products || [])
-// const active = auth.active
-// const inactive = auth.inactive
 
 /* Stats */
 const activeProducts = computed(() => products.value.filter(p => p.is_active).length)

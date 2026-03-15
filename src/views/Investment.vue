@@ -102,8 +102,8 @@
             <!-- Status Column -->
             <Column header="Status">
               <template #body="slotProps">
-                <span :class="['status-pill', slotProps.data.status ? 'status-active' : 'status-inactive']">
-                  {{ slotProps.data.status ? 'Active' : 'Inactive' }}
+                <span :class="['status-pill', slotProps.data.status ? 'status-active' : 'status-completed']">
+                  {{ slotProps.data.status ? 'Active' : 'Completed' }}
                 </span>
               </template>
             </Column>
@@ -124,11 +124,27 @@
             </Column>
 
             <!-- Created Column -->
-            <Column header="Duration">
+            <Column header="Maturity Date">
               <template #body="slotProps">
-                From {{ formatDate(slotProps.data.created_at) }} to {{ formatDate(slotProps.data.maturity_date) }}
+                {{ formatDate(slotProps.data.maturity_date) }}
               </template>
             </Column>
+
+            <!-- Yield Column -->
+            <Column header="Current Yield">
+              <template #body="slotProps">
+                {{ formatCurrency(slotProps.data.accumulated_yield) }}
+              </template>
+            </Column>
+
+            <!-- Payout -->
+            <Column header="Expected Payout">
+              <template #body="slotProps">
+                {{ formatCurrency(slotProps.data.expected_payout) }}
+              </template>
+            </Column>
+
+
           </DataTable>
         </v-card>
       </v-container>
@@ -304,12 +320,17 @@ const clearFilters = () => {
 
 .status-active {
   background: #ecfdf5;
-  color: #16a34a;
+  color: #0b8ba4;
 }
 
 .status-inactive {
   background: #fef2f2;
   color: #dc2626;
+}
+
+.status-completed {
+  background: #fef2f2;
+  color: #16a34a;
 }
 
 /* Search input */
