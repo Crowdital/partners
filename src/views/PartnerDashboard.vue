@@ -23,12 +23,12 @@
               icon="mdi-account-group-outline" iconColor="#64cf69" />
           </v-col>
           <v-col cols="12" sm="6" md="3">
-            <StatCard title="Total Investment" :value="formatCurrencyCompact(totalInvestment)" subtext="Across all investment" icon="mdi-transfer"
-              iconColor="#64cf69" />
+            <StatCard title="Total Investment" :value="formatCurrencyCompact(totalInvestment)"
+              subtext="Across all investment" icon="mdi-transfer" iconColor="#64cf69" />
           </v-col>
           <v-col cols="12" sm="6" md="3">
-            <StatCard title="Total Product" :value="totalProducts" subtext="Found in portfolio" icon="mdi-briefcase-outline"
-              iconColor="#64cf69" />
+            <StatCard title="Total Product" :value="totalProducts" subtext="Found in portfolio"
+              icon="mdi-briefcase-outline" iconColor="#64cf69" />
           </v-col>
           <v-col cols="12" sm="6" md="3">
             <StatCard title="Wallet Balance" :value="formatCurrencyCompact(walletBalnce)" subtext="As of today"
@@ -39,16 +39,16 @@
         <!-- Stat Cards row 2-->
         <v-row class="stats mt-4" dense>
           <v-col cols="12" sm="6" md="3">
-            <StatCard title="Average Investment" :value="formatCurrency(averageInvestment)" subtext="Across all investment"
-              icon="mdi-ab-testing" iconColor="#64cf69" />
+            <StatCard title="Average Investment" :value="formatCurrency(averageInvestment)"
+              subtext="Across all investment" icon="mdi-ab-testing" iconColor="#64cf69" />
           </v-col>
           <v-col cols="12" sm="6" md="3">
-            <StatCard title="Investments This Month" :value="formatCurrency(monthInvestment)" subtext="Across all investment" icon="mdi-calendar-start-outline"
-              iconColor="#64cf69" />
+            <StatCard title="Investments This Month" :value="formatCurrency(monthInvestment)"
+              subtext="Across all investment" icon="mdi-calendar-start-outline" iconColor="#64cf69" />
           </v-col>
           <v-col cols="12" sm="6" md="3">
-            <StatCard title="Expected Payout" :value="formatCurrencyCompact(expectedPayout)" subtext="Across all investment" icon="mdi-bank-transfer-out"
-              iconColor="#64cf69" />
+            <StatCard title="Estimated Payout" :value="formatCurrencyCompact(expectedPayout)"
+              subtext="Across all investment" icon="mdi-bank-transfer-out" iconColor="#64cf69" />
           </v-col>
           <v-col cols="12" sm="6" md="3">
             <StatCard title="Matured Investment" :value="formatCurrency(matureThisMonth)" subtext="As of today"
@@ -56,28 +56,169 @@
           </v-col>
         </v-row>
 
-        <!-- Large content box (table/chart) -->
+        <!-- Large content box (chart) -->
         <v-card class="large-box mt-6 pa-4">
           <!-- Placeholder: Table or Chart -->
-         <v-row>
-    <v-col cols="12" sm="3">
-      <Chart
-        type="doughnut"
-        :data="chartData"
-        :options="chartOptions"
-        class="w-full"
-      />
-    </v-col>
+          <v-row>
+            <v-col cols="12" sm="3">
+              <Chart type="doughnut" :data="chartData" :options="chartOptions" class="w-full" />
+            </v-col>
 
-    <v-col cols="12" sm="9">
-      <Chart
-        type="bar"
-        :data="barChartData"
-        :options="barChartOptions"
-        class="h-[30rem] w-full"
-      />
-    </v-col>
-  </v-row>
+            <v-col cols="12" sm="9">
+              <Chart type="bar" :data="barChartData" :options="barChartOptions" class="h-[30rem] w-full" />
+            </v-col>
+          </v-row>
+        </v-card>
+
+        <!-- Large content box (Investor table) -->
+        <v-card class="large-box mt-6 pa-4">
+          <!-- Placeholder: Table or Chart -->
+          <v-row>
+            <v-col cols="12" sm="12">
+              <!-- PrimeVue DataTable with search -->
+              <DataTable v-model:expandedRows="expandedRows" :value="investors" dataKey="id" paginator :rows="10"
+                stripedRows class="modern-table" tableStyle="min-width: 60rem" @rowExpand="onRowExpand"
+                @rowCollapse="onRowCollapse">
+
+                <!-- Empty table -->
+                <template #empty>
+                  No Data found.
+                </template>
+
+                <!-- Loading state -->
+                <template #loading>
+                  Loading Data...
+                </template>
+                <Column expander style="width: 3rem" />
+                <!-- Product Column -->
+                <Column header="Customer ID">
+                  <template #body="slotProps">
+                    <div class="product-cell">
+                      <div>
+                        <div class="product-name">{{ slotProps.data.user.profile.account_id }}</div>
+                        <div class="product-desc">Reference: {{ slotProps.data.uuid }}</div>
+                      </div>
+                    </div>
+                  </template>
+                </Column>
+
+                <!--User Column-->
+                <Column header="Total Invested">
+                  <template #body="slotProps">
+                    <div class="product-cell">
+                      <div>
+                        <div class="product-name">{{ formatCurrency(slotProps.data.total_invested) }}
+                        </div>
+                      </div>
+                    </div>
+                  </template>
+                </Column>
+
+                <!--Amount Column-->
+                <Column header="Total Portfolio">
+                  <template #body="slotProps">
+                    <div class="product-cell">
+                      <div>
+                        {{ slotProps.data.total_investments }}
+                      </div>
+                    </div>
+                  </template>
+                </Column>
+
+                <!--Type Column-->
+                <!-- <Column header="Type">
+                  <template #body="slotProps">
+                    <div class="product-cell">
+                      <div>
+                        {{ slotProps.data.type }}
+                      </div>
+                    </div>
+                  </template>
+                </Column> -->
+
+                <!-- Status Column -->
+                <!-- <Column header="Status">
+                  <template #body="slotProps">
+                    <span :class="['status-pill', slotProps.data.status ? 'status-active' : 'status-inactive']">
+                      {{ slotProps.data.status ? 'Successful' : 'Pending' }}
+                    </span>
+                  </template>
+                </Column> -->
+
+                <!--Source Column-->
+                <!-- <Column header="Source">
+                  <template #body="slotProps">
+                    <div class="product-cell">
+                      <div>
+                        {{ slotProps.data.transaction_source }}
+                      </div>
+                    </div>
+                  </template>
+                </Column> -->
+
+                <!-- Created Column -->
+                <Column header="Last Investment Date">
+                  <template #body="slotProps">
+                    {{ formatDate(slotProps.data.last_investment_date) }}
+                  </template>
+                </Column>
+
+                <template #expansion="slotProps">
+                  <div class="p-4">
+                    <h5>Investment Details</h5>
+
+                    <DataTable class="inner" :value="slotProps.data.user?.orders || []">
+
+                      <Column header="Order ID">
+                        <template #body="order">
+                          {{ order.data.order_id }}
+                        </template>
+                      </Column>
+
+                      <Column header="Product">
+                        <template #body="order">
+                          {{ order.data.product?.product_name }}
+                        </template>
+                      </Column>
+
+                      <Column header="Amount">
+                        <template #body="order">
+                          {{ formatCurrency(order.data.price) }}
+                        </template>
+                      </Column>
+
+                      <Column header="Current Yield">
+                        <template #body="order">
+                          {{ formatCurrency(order.data.accumulated_yield) }}
+                        </template>
+                      </Column>
+
+                      <Column header="Payout">
+                        <template #body="order">
+                          {{ formatCurrency(order.data.expected_payout) }}
+                        </template>
+                      </Column>
+
+                      <Column header="Order Date">
+                        <template #body="order">
+                          {{ formatDate(order.data.created_at) }}
+                        </template>
+                      </Column>
+
+                      <Column header="Maturity Date">
+                        <template #body="order">
+                          {{ formatDate(order.data.maturity_date) }}
+                        </template>
+                      </Column>
+
+                    </DataTable>
+                  </div>
+                </template>
+
+
+              </DataTable>
+            </v-col>
+          </v-row>
         </v-card>
 
       </v-container>
@@ -93,9 +234,10 @@ import Header from "@/components/Header.vue"
 import StatCard from "@/components/StatCard.vue"
 import Chart from 'primevue/chart'
 import { useAuthStore } from "@/store/auth"
-import { formatCurrencyCompact, formatCurrency } from "@/util"
+import { formatCurrencyCompact, formatCurrency, formatDate } from "@/util"
 
-//const stats = ref();
+import DataTable from 'primevue/datatable'
+import Column from 'primevue/column'
 
 const isSidebarCollapsed = ref(false)
 const isDarkMode = ref(false)
@@ -136,13 +278,14 @@ const averageInvestment = computed(() => stat.value.averageInvestment)
 const monthInvestment = computed(() => stat.value.investmentsThisMonth)
 const expectedPayout = computed(() => stat.value.totalExpectedPayout)
 const matureThisMonth = computed(() => stat.value.maturingThisMonth)
+const investors = computed(() => stat.value?.investors || [])
 
 onMounted(async () => {
   checkMobile()
   window.addEventListener("resize", checkMobile)
   await auth.loadPartner()
   await auth.loadPartnerStat()
-  console.log(stat.value)
+  console.log(investors.value)
 });
 
 // Reactive computed properties
@@ -208,6 +351,18 @@ const barChartOptions = ref({
     }
   }
 })
+
+/**===================== Table ================== */
+const expandedRows = ref([])
+
+const onRowExpand = (event) => {
+  console.log("Row Expanded:", event.data)
+}
+
+const onRowCollapse = (event) => {
+  console.log("Row Collapsed:", event.data)
+}
+
 </script>
 
 <style scoped>
@@ -247,8 +402,16 @@ const barChartOptions = ref({
 .stats .v-card {
   text-align: center;
 }
+
 :deep(.modern-table .p-datatable-thead > tr > th) {
   background: #eef7f0;
+  color: #065f46;
+  font-weight: 600;
+  border-bottom: 2px solid #c1edc3;
+}
+
+:deep(.modern-table .inner .p-datatable-thead > tr > th) {
+  background: #ffffff;
   color: #065f46;
   font-weight: 600;
   border-bottom: 2px solid #c1edc3;
