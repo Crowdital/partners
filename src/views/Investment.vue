@@ -175,7 +175,7 @@ const isSidebarCollapsed = ref(false)
 const drawerOpen = ref(false)
 const isMobile = ref(false)
 const filters = ref({ global: { value: null, matchMode: "contains" } })
-const defaultImage = "https://via.placeholder.com/40"
+const defaultImage = "https://gravatar.com/avatar/"
 
 /* Mobile */
 const toggleSidebar = () => {

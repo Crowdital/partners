@@ -177,7 +177,7 @@ const isMobile = ref(false)
 
 const loading = ref(true)
 
-const defaultImage = "https://via.placeholder.com/200"
+const defaultImage = "https://gravatar.com/avatar/"
 
 /* Sidebar Toggle */
 

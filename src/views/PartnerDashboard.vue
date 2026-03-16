@@ -65,7 +65,7 @@
             </v-col>
 
             <v-col cols="12" sm="9">
-              <Chart type="bar" :data="barChartData" :options="barChartOptions" class="h-[30rem] w-full" />
+              <div class="chart-container"><Chart type="bar" :data="barChartData" :options="barChartOptions" style="height:400px" /></div>
             </v-col>
           </v-row>
         </v-card>
@@ -75,6 +75,7 @@
           <!-- Placeholder: Table or Chart -->
           <v-row>
             <v-col cols="12" sm="12">
+              <h5>Investors Log</h5>
               <!-- PrimeVue DataTable with search -->
               <DataTable v-model:expandedRows="expandedRows" :value="investors" dataKey="id" paginator :rows="10"
                 stripedRows class="modern-table" tableStyle="min-width: 60rem" @rowExpand="onRowExpand"
@@ -95,8 +96,7 @@
                   <template #body="slotProps">
                     <div class="product-cell">
                       <div>
-                        <div class="product-name">{{ slotProps.data.user.profile.account_id }}</div>
-                        <div class="product-desc">Reference: {{ slotProps.data.uuid }}</div>
+                        <div class="product-name">{{ slotProps.data.user?.profile?.account_id }}</div>
                       </div>
                     </div>
                   </template>
@@ -270,22 +270,24 @@ const toggleDarkMode = () => {
 
 const stat = computed(() => auth.stat || [])
 
-const totalInvestor = computed(() => stat.value.totalInvestors)
-const totalInvestment = computed(() => stat.value.totalInvestments)
-const walletBalnce = computed(() => stat.value.walletBalance)
-const totalProducts = computed(() => stat.value.totalProducts)
-const averageInvestment = computed(() => stat.value.averageInvestment)
-const monthInvestment = computed(() => stat.value.investmentsThisMonth)
-const expectedPayout = computed(() => stat.value.totalExpectedPayout)
-const matureThisMonth = computed(() => stat.value.maturingThisMonth)
+const totalInvestor = computed(() => stat.value?.totalInvestors)
+const totalInvestment = computed(() => stat.value?.totalInvestments)
+const walletBalnce = computed(() => stat.value?.walletBalance)
+const totalProducts = computed(() => stat.value?.totalProducts)
+const averageInvestment = computed(() => stat.value?.averageInvestment)
+const monthInvestment = computed(() => stat.value?.investmentsThisMonth)
+const expectedPayout = computed(() => stat.value?.totalExpectedPayout)
+const matureThisMonth = computed(() => stat.value?.maturingThisMonth)
 const investors = computed(() => stat.value?.investors || [])
+
+//const totalWithdrawal = computed(() => stat.value.totalWithdrawal || [])
 
 onMounted(async () => {
   checkMobile()
   window.addEventListener("resize", checkMobile)
   await auth.loadPartner()
   await auth.loadPartnerStat()
-  console.log(investors.value)
+  console.log(stat.value)
 });
 
 // Reactive computed properties
@@ -301,17 +303,20 @@ onUnmounted(() => {
 
 /**============= doughnut Chart option ============*/
 const chartData = ref({
-  labels: ['Outflow', 'Investment'],
+  labels: ['Total Investments', 'Withdrawals'],
   datasets: [
     {
-      data: [70000, 120000],
+      data: [
+        stat.value.totalInvestments,
+        stat.value.totalWithdrawal
+      ],
       backgroundColor: [
-        '#EF5350',
-        '#66BB6A'
+        '#66BB6A',
+        '#EF5350'
       ],
       hoverBackgroundColor: [
-        '#E57373',
-        '#81C784'
+        '#81C784',
+        '#E57373'
       ]
     }
   ]
@@ -326,20 +331,41 @@ const chartOptions = ref({
 })
 
 /**============= Bar chart option ===============*/
-const barChartData = ref({
-  labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'],
-  datasets: [
-    {
-      label: 'Investments',
-      data: [65, 59, 80, 81, 56, 55],
-      backgroundColor: '#64cf69'
-    },
-    {
-      label: 'Withdrawals',
-      data: [28, 48, 40, 19, 86, 27],
-      backgroundColor: '#EF5350'
-    }
-  ]
+
+const months = [
+  'Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun',
+  'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'
+]
+
+const formatMonthlyData = (apiData) => {
+  const result = new Array(12).fill(0)
+
+  apiData?.forEach(item => {
+    const date = new Date(item.month)
+    const monthIndex = date.getMonth() // 0 = Jan
+
+    result[monthIndex] = Number(item.total)
+  })
+
+  return result
+}
+
+const barChartData = computed(() => {
+  return {
+    labels: months,
+    datasets: [
+      {
+        label: 'Investments',
+        data: formatMonthlyData(stat.value?.monthlyInvestments),
+        backgroundColor: '#64cf69'
+      },
+      {
+        label: 'Withdrawals',
+        data: formatMonthlyData(stat.value?.monthlyWithdrawals),
+        backgroundColor: '#EF5350'
+      }
+    ]
+  }
 })
 
 const barChartOptions = ref({
