@@ -89,7 +89,7 @@ const router = useRouter()
 
 const profileImageUrl = computed(() => {
   // Check if partner is loaded
-  if (!auth.partner || Object.keys(auth.partner).length === 0) return "https://i.pravatar.cc/100"
+  if (!auth.partner || Object.keys(auth.partner).length === 0) return "https://gravatar.com/avatar/"
 
   // Return full URL
   return `${STORAGE_URL}/${auth.partner.partner.partner_image}`
