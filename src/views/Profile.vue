@@ -3,146 +3,96 @@
     <v-main class="main">
 
       <!-- Sidebar -->
-      <Sidebar
-        :drawerOpen="drawerOpen"
-        :collapsed="isSidebarCollapsed"
-        :isMobile="isMobile"
-        @update:drawerOpen="drawerOpen = $event"
-      />
+      <Sidebar :drawerOpen="drawerOpen" :collapsed="isSidebarCollapsed" :isMobile="isMobile"
+        @update:drawerOpen="drawerOpen = $event" />
 
       <!-- Main Content -->
-      <v-container fluid class="main-content pa-4">
+      <v-container fluid class="main-content pa-6">
 
         <!-- Header -->
-        <Header
-          :isDarkMode="isDarkMode"
-          :isMobile="isMobile"
-          @toggle-sidebar="toggleSidebar"
-          @toggle-darkmode="toggleDarkMode"
-        />
+        <Header :isDarkMode="isDarkMode" :isMobile="isMobile" @toggle-sidebar="toggleSidebar"
+          @toggle-darkmode="toggleDarkMode" />
 
-        <!-- PROFILE PAGE -->
-        <div class="profile-page">
+        <!-- Loading -->
+        <div v-if="loading" class="loader">
+          <v-progress-circular indeterminate color="primary" />
+        </div>
 
-          <div class="grid">
+        <!-- PROFILE CARD -->
+        <v-card v-else class="profile-card pa-6">
 
-            <!-- LEFT PROFILE CARD -->
-            <div class="col-12 md:col-4">
-              <Card class="profile-card">
+          <!-- Top Section -->
+          <v-row align="center">
 
-                <template #content>
-                  <div class="profile-header">
+            <!-- Avatar -->
+            <v-col cols="12" md="3" class="text-center">
+              <v-avatar size="120">
+                <img :src="user.avatar" />
+              </v-avatar>
 
-                    <Avatar
-                      image="https://i.pravatar.cc/150"
-                      size="xlarge"
-                      shape="circle"
-                    />
+              <div class="mt-4 profile-name">
+                {{ user.name }}
+              </div>
 
-                    <h3>{{ user.name }}</h3>
-                    <p class="role">{{ user.role }}</p>
+            </v-col>
 
-                    <Button
-                      label="Upload Photo"
-                      icon="pi pi-upload"
-                      class="p-button-sm p-button-outlined mt-3"
-                    />
+            <!-- Basic Info -->
+            <v-col cols="12" md="9">
 
-                  </div>
-                </template>
+              <v-row>
 
-              </Card>
-            </div>
+                <v-col cols="12" md="6">
+                  <div class="detail-label">Full Name</div>
+                  <v-text-field v-model="user.name" variant="outlined" density="comfortable" />
+                </v-col>
 
-            <!-- PROFILE DETAILS -->
-            <div class="col-12 md:col-8">
+                <v-col cols="12" md="6">
+                  <div class="detail-label">Email</div>
+                  <v-text-field v-model="user.email" variant="outlined" density="comfortable" />
+                </v-col>
 
-              <Card>
+                <v-col cols="12" md="6">
+                  <div class="detail-label">Phone</div>
+                  <v-text-field v-model="user.phone" variant="outlined" density="comfortable" />
+                </v-col>
 
-                <template #title>
-                  Profile Information
-                </template>
+                <v-col cols="12" md="6">
+                  <div class="detail-label">Company</div>
+                  <v-text-field v-model="user.company" variant="outlined" density="comfortable" />
+                </v-col>
 
-                <template #content>
+              </v-row>
 
-                  <div class="grid formgrid">
+            </v-col>
 
-                    <div class="field col-12 md:col-6">
-                      <label>Full Name</label>
-                      <InputText v-model="user.name" />
-                    </div>
+          </v-row>
 
-                    <div class="field col-12 md:col-6">
-                      <label>Email</label>
-                      <InputText v-model="user.email" />
-                    </div>
+          <v-divider class="my-6" />
 
-                    <div class="field col-12 md:col-6">
-                      <label>Phone</label>
-                      <InputText v-model="user.phone" />
-                    </div>
+          <!-- Address Section -->
+          <v-row>
 
-                    <div class="field col-12 md:col-6">
-                      <label>Company</label>
-                      <InputText v-model="user.company" />
-                    </div>
+            <v-col cols="12">
+              <div class="detail-label">Address</div>
+              <v-text-field v-model="user.address" variant="outlined" density="comfortable" />
+            </v-col>
 
-                    <div class="field col-12">
-                      <label>Address</label>
-                      <InputText v-model="user.address" />
-                    </div>
+          </v-row>
 
-                  </div>
+          <v-divider class="my-6" />
 
-                  <Button
-                    label="Save Changes"
-                    icon="pi pi-check"
-                    class="mt-3"
-                  />
 
-                </template>
 
-              </Card>
+          <!-- Save Button -->
+          <div class="mt-6">
 
-              <!-- PASSWORD SECTION -->
-
-              <Card class="mt-4">
-
-                <template #title>
-                  Change Password
-                </template>
-
-                <template #content>
-
-                  <div class="grid">
-
-                    <div class="field col-12 md:col-6">
-                      <label>Current Password</label>
-                      <Password toggleMask />
-                    </div>
-
-                    <div class="field col-12 md:col-6">
-                      <label>New Password</label>
-                      <Password toggleMask />
-                    </div>
-
-                  </div>
-
-                  <Button
-                    label="Update Password"
-                    icon="pi pi-lock"
-                    class="p-button-warning mt-3"
-                  />
-
-                </template>
-
-              </Card>
-
-            </div>
-
+            <button type="submit" :disabled="loading" class="save-button">
+              <span v-if="!loading">Save Changes</span>
+              <span v-else>Saving Details…</span>
+            </button>
           </div>
 
-        </div>
+        </v-card>
 
       </v-container>
 
@@ -150,87 +100,70 @@
   </v-app>
 </template>
 
+
 <script setup>
-
 import { ref, onMounted, onUnmounted } from "vue"
-
 import Sidebar from "@/components/Sidebar.vue"
 import Header from "@/components/Header.vue"
-
 import { useAuthStore } from "@/store/auth"
 
-/* PrimeVue Components */
-import Card from "primevue/card"
-import Button from "primevue/button"
-import InputText from "primevue/inputtext"
-import Avatar from "primevue/avatar"
-import Password from "primevue/password"
+const auth = useAuthStore()
 
-/* User Data */
+const loading = ref(false)
+
+//const partnerName = computed(() => auth.partner?.partner?.name || '')
+// const partnerEmail = computed(() => auth.partner?.email || '')
+// const partnerPhone = computed(() => auth.partner?.phone || '')
+// const partnerWebsite = computed(() => auth.partner?.website || '')
+// const partnerAddress = computed(() => auth.partner?.address || '')
+// const partnerLogo = computed(() => auth.partner?.partner_image|| '')
+//const defaultImage = "https://gravatar.com/avatar/"
+
 const user = ref({
-  name: "John Doe",
-  email: "john@company.com",
-  phone: "+234 801 234 5678",
-  company: "Crowdital",
-  role: "Partner Admin",
-  address: "Lagos, Nigeria"
+  //name: auth.partner?.partner?.name,
+  email: auth.partner?.email,
+ phone: auth.partner?.phone,
+  // website: auth.partner?.website,
+  // address: auth.partner?.address,
+  // avatar: auth.partner?.partner_image || defaultImage
 })
 
-/* Layout States */
 const isSidebarCollapsed = ref(false)
 const isDarkMode = ref(false)
 const drawerOpen = ref(false)
 const isMobile = ref(false)
 
-const auth = useAuthStore()
-
-/* Toggle Sidebar */
 const toggleSidebar = () => {
-
   if (isMobile.value) {
     drawerOpen.value = !drawerOpen.value
   } else {
     isSidebarCollapsed.value = !isSidebarCollapsed.value
   }
-
 }
 
-/* Detect Mobile */
 const checkMobile = () => {
-
   isMobile.value = window.innerWidth < 768
-
-  if (!isMobile.value) {
-    drawerOpen.value = true
-  } else {
-    drawerOpen.value = false
-  }
-
+  drawerOpen.value = !isMobile.value
 }
 
-/* Dark Mode */
 const toggleDarkMode = () => {
   isDarkMode.value = !isDarkMode.value
 }
 
-/* Lifecycle */
 onMounted(async () => {
-
   checkMobile()
   window.addEventListener("resize", checkMobile)
-
   await auth.loadPartner()
-
+  console.log(auth.partner)
 })
 
 onUnmounted(() => {
   window.removeEventListener("resize", checkMobile)
 })
-
 </script>
 
-<style scoped>
 
+<style scoped>
 .main {
   display: flex;
   min-height: 100vh;
@@ -238,32 +171,47 @@ onUnmounted(() => {
 
 .main-content {
   flex: 1;
-  background-color: #e5e7eb;
-}
-
-/* Profile */
-
-.profile-page {
-  padding: 20px;
+  background: #f3f4f6;
 }
 
 .profile-card {
-  text-align: center;
+  border-radius: 16px;
 }
 
-.profile-header h3 {
-  margin-top: 10px;
+.profile-name {
+  font-size: 20px;
+  font-weight: 600;
 }
 
-.role {
-  color: #6b7280;
+.profile-role {
   font-size: 14px;
+  color: #6b7280;
 }
 
-.field label {
-  display: block;
-  font-weight: 500;
+.detail-label {
+  font-size: 13px;
+  font-weight: 600;
   margin-bottom: 6px;
+  color: #374151;
 }
 
+/* Button */
+.save-button {
+  width: 40%;
+  height: 46px;
+  background: #000;
+  color: #fff;
+  border-radius: 10px;
+  font-weight: 600;
+  transition: all 0.25s ease;
+}
+
+.save-button:hover {
+  background: #292828;
+}
+
+.save-button:disabled {
+  opacity: 0.7;
+  cursor: not-allowed;
+}
 </style>
