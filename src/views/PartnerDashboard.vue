@@ -61,7 +61,7 @@
           <!-- Placeholder: Table or Chart -->
           <v-row>
             <v-col cols="12" sm="3">
-              <Chart type="doughnut" :data="chartData" :options="chartOptions" class="w-full" />
+              <Chart v-if="stat" type="doughnut" :data="chartData" :options="chartOptions" class="w-full" />
             </v-col>
 
             <v-col cols="12" sm="9">
@@ -287,7 +287,6 @@ onMounted(async () => {
   window.addEventListener("resize", checkMobile)
   await auth.loadPartner()
   await auth.loadPartnerStat()
-  console.log(stat.value)
 });
 
 // Reactive computed properties
@@ -307,8 +306,8 @@ const chartData = ref({
   datasets: [
     {
       data: [
-        stat.value.totalInvestments,
-        stat.value.totalWithdrawal
+        stat.value?.totalInvestments || 1,
+        stat.value?.totalWithdrawal || 1
       ],
       backgroundColor: [
         '#66BB6A',

@@ -86,8 +86,8 @@
                         </div>
                         <!-- Submit -->
                         <button type="submit" :disabled="loading" class="login-button">
-                            <span v-if="!loading">Log in</span>
-                            <span v-else>Signing in…</span>
+                            <span v-if="!loading">Log in <v-icon start>mdi-login</v-icon></span>
+                            <span v-else>Signing in… <v-icon start>mdi-loading</v-icon></span>
                         </button>
 
                     </form>
