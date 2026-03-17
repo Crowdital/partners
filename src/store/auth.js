@@ -39,7 +39,7 @@ export const useAuthStore = defineStore("auth", {
       try {
         const res = await fetchSingleProductData(id)
         this.singleProduct = res.data.data
-        console.log(res.data.data)
+        //console.log(res.data.data)
       } catch (error) {
         console.error("Failed to load product:", error)
       }

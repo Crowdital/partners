@@ -87,7 +87,7 @@
           <div class="mt-6">
 
             <button type="submit" :disabled="loading" class="save-button">
-              <span v-if="!loading">Save Changes</span>
+              <span v-if="!loading" >Save Changes </span>
               <span v-else>Saving Details…</span>
             </button>
           </div>

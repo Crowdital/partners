@@ -43,7 +43,7 @@
           <!-- PrimeVue DataTable with search ---NB: add showGridlines to show column lines-->
           <DataTable v-model:filters="filters" :value="products" paginator :rows="10" dataKey="id"
             stripedRows class="modern-table" :rowsPerPageOptions="[5, 10, 20, 50]" tableStyle="min-width: 50rem"
-            filterDisplay="menu" :globalFilterFields="['product_name', 'description']">
+            filterDisplay="menu" @row-click="goToDetails" selectionMode="single" :globalFilterFields="['product_name', 'description']">
             <!-- Header with search input -->
             <!-- <template #header>
               <div class="flex justify-between align-center p-2">
@@ -258,6 +258,7 @@ const clearFilters = () => {
 
 const router = useRouter()
 
+//View link on the row
 const viewProduct = (product) => {
   const id = product.product_id || product.id
 
@@ -267,6 +268,16 @@ const viewProduct = (product) => {
   }
 
   router.push(`/products/${id}`)
+}
+
+//clicking on the row
+const goToDetails = (event) => {
+  const row = event.data
+
+  router.push({
+    name: 'ProductDetails', // your route name
+    params: { id: row.product_id }       // or uuid
+  })
 }
 </script>
 
@@ -374,5 +385,13 @@ const viewProduct = (product) => {
   color: #065f46;
   font-weight: 600;
   border-bottom: 2px solid #c1edc3;
+}
+
+.p-datatable-tbody > tr {
+  cursor: pointer;
+}
+
+.p-datatable-tbody > tr:hover {
+  background-color: #f5f5f5;
 }
 </style>

@@ -14,8 +14,9 @@
         <!-- Stats -->
         <v-row class="stats mt-4" dense>
           <v-col cols="12" sm="3">
-            <StatCard title="Total Successful Transaction" :value="formatCurrencyCompact(totalSuccesfullTransations)" icon="mdi-wallet-plus-outline"
-              iconColor="#22c55e" :subtext="`${formatCurrency(totalSuccesfullTransations)} From ${totalTransationsCount} Transactions`" />
+            <StatCard title="Total Successful Transaction" :value="formatCurrencyCompact(totalSuccesfullTransations)"
+              icon="mdi-wallet-plus-outline" iconColor="#22c55e"
+              :subtext="`${formatCurrency(totalSuccesfullTransations)} From ${totalTransationsCount} Transactions`" />
           </v-col>
           <v-col cols="12" sm="3">
             <StatCard title="Completed Transaction" :value="completedTransations" icon="mdi-card-plus-outline"
@@ -43,9 +44,10 @@
           </div>
 
           <!-- PrimeVue DataTable with search -->
-          <DataTable v-model:filters="filters" :value="transactions" paginator :rows="10" dataKey="id"
-            stripedRows class="modern-table" :rowsPerPageOptions="[5, 10, 20, 50]" tableStyle="min-width: 50rem"
-            filterDisplay="menu" :globalFilterFields="['transaction_id', 'uuid', 'firstname', 'lastname','transaction_source', 'type']">
+          <DataTable v-model:filters="filters" :value="transactions" paginator :rows="10" dataKey="id" stripedRows
+            class="modern-table" :rowsPerPageOptions="[5, 10, 20, 50]" tableStyle="min-width: 50rem"
+            filterDisplay="menu"
+            :globalFilterFields="['transaction_id', 'uuid', 'firstname', 'lastname', 'transaction_source', 'type']">
 
             <!-- Empty table -->
             <template #empty>
@@ -70,12 +72,11 @@
             </Column>
 
             <!--User Column-->
-            <Column header="Customer">
+            <Column header="Description">
               <template #body="slotProps">
                 <div class="product-cell">
                   <div>
-                    <div class="product-name">{{ slotProps.data.user.firstname }} {{ slotProps.data.user.lastname }}</div>
-                    <div class="product-desc">{{ slotProps.data.description }}</div>
+                    <div class="product-name">{{ slotProps.data.description }}</div>
                   </div>
                 </div>
               </template>
@@ -106,8 +107,13 @@
             <!-- Status Column -->
             <Column header="Status">
               <template #body="slotProps">
-                <span :class="['status-pill', slotProps.data.status ? 'status-active' : 'status-inactive']">
-                  {{ slotProps.data.status ? 'Successful' : 'Pending' }}
+                <span :class="[
+                  'status-pill',
+                  slotProps.data.status === 'successful'
+                    ? 'status-active'
+                    : 'status-inactive'
+                ]">
+                  {{ slotProps.data.status === 'successful' ? 'Successful' : 'Pending' }}
                 </span>
               </template>
             </Column>
@@ -202,9 +208,9 @@ onUnmounted(() => {
 })
 
 /* Transaction */
- const transactions = computed(() => tr.transactions || [])
+const transactions = computed(() => tr.transactions || [])
 
- /* Stats */
+/* Stats */
 //  const totalTransationsAmount = computed(() =>
 //   transactions.value.reduce((sum, tr) => sum + Number(tr.amount || 0), 0)
 // )
@@ -216,7 +222,7 @@ const totalSuccesfullTransations = computed(() =>
     .reduce((sum, tr) => sum + Number(tr.amount || 0), 0)
 )
 
- const completedTransations = computed(() =>
+const completedTransations = computed(() =>
   transactions.value.filter(i => i.status === "successful").length
 )
 
@@ -356,6 +362,7 @@ const clearFilters = () => {
   font-weight: 600;
   transition: all 0.25s ease;
 }
+
 :deep(.modern-table .p-datatable-thead > tr > th) {
   background: #eef7f0;
   color: #065f46;

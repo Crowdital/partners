@@ -102,8 +102,16 @@
             <!-- Status Column -->
             <Column header="Status">
               <template #body="slotProps">
-                <span :class="['status-pill', slotProps.data.status ? 'status-active' : 'status-completed']">
+                <!-- <span :class="['status-pill', slotProps.data.status ? 'status-active' : 'status-completed']">
                   {{ slotProps.data.status ? 'Active' : 'Completed' }}
+                </span> -->
+                <span :class="[
+                  'status-pill',
+                  slotProps.data.status === 'active'
+                    ? 'status-active'
+                    : 'status-completed'
+                ]">
+                  {{ slotProps.data.status === 'active' ? 'Active' : 'Completed' }}
                 </span>
               </template>
             </Column>
@@ -329,7 +337,7 @@ const clearFilters = () => {
 }
 
 .status-completed {
-  background: #fef2f2;
+  background: #ecfdf5;
   color: #16a34a;
 }
 
