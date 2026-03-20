@@ -14,20 +14,20 @@
         <!-- Stats -->
         <v-row class="stats mt-4" dense>
           <v-col cols="12" sm="3">
-            <StatCard title="Total Investment" :value="activeProducts" icon="mdi-cash-multiple"
-              iconColor="#22c55e" subtext="24 new since last visit" />
+            <StatCard title="Wallet Balance" :value="formatCurrencyCompact(walletBalance)" icon="mdi-cash-multiple"
+              iconColor="#22c55e" :subtext="`From ${totalTransationsCount} Requests`" />
           </v-col>
           <v-col cols="12" sm="3">
-            <StatCard title="Completed Investment" :value="inactiveProducts" icon="mdi-cash-check"
-              iconColor="#ef4444" subtext="24 new since last visit" />
+            <StatCard title="Completed Withrawal Request" :value="completedTransations" icon="mdi-cash-check"
+              iconColor="#ef4444" :subtext="`From ${totalTransationsCount} Requests`" />
           </v-col>
           <v-col cols="12" sm="3">
-            <StatCard title="Pending Investment" :value="activeProducts" icon="mdi-cash-lock"
-              iconColor="#22c55e" subtext="24 new since last visit" />
+            <StatCard title="Pending Withrawal Request" :value="pendingTransations" icon="mdi-cash-lock"
+              iconColor="#22c55e" :subtext="`From ${totalTransationsCount} Requests`" />
           </v-col>
           <v-col cols="12" sm="3">
-            <StatCard title="Active Investor" :value="inactiveProducts" icon="mdi-account-group-outline"
-              iconColor="#ef4444" subtext="24 new since last visit" />
+            <StatCard title="Total Withdrawal" :value="totalSuccesfullTransations" icon="mdi-account-group-outline"
+              iconColor="#ef4444" :subtext="`From ${totalTransationsCount} Transaction`" />
           </v-col>
         </v-row>
 
@@ -43,30 +43,60 @@
           </div>
 
           <!-- PrimeVue DataTable with search -->
-          <DataTable v-model:filters="filters" :value="products" paginator showGridlines :rows="10" dataKey="id"
+          <DataTable v-model:filters="filters" :value="walletTr" paginator :rows="10" dataKey="id"
             stripedRows class="modern-table" :rowsPerPageOptions="[5, 10, 20, 50]" tableStyle="min-width: 50rem"
             filterDisplay="menu" :globalFilterFields="['product_name', 'description']">
 
             <!-- Empty table -->
             <template #empty>
-              No Wallet found.
+              No Transaction found.
             </template>
 
             <!-- Loading state -->
             <template #loading>
-              Loading Wallet...
+              Loading Transactions...
             </template>
 
-            <!-- Product Column -->
-            <Column header="Product">
+           <!-- Product Column -->
+            <Column header="Transaction ID">
               <template #body="slotProps">
                 <div class="product-cell">
-                  <img
-                    :src="slotProps.data.product_image ? `${STORAGE_URL}/${slotProps.data.product_image}` : defaultImage"
-                    class="product-image" />
                   <div>
-                    <div class="product-name">{{ slotProps.data.product_name }}</div>
-                    <div class="product-desc">{{ truncate(slotProps.data.description) }}</div>
+                    <div class="product-name">{{ slotProps.data.transaction_id }}</div>
+                    <div class="product-desc">Reference: {{ slotProps.data.uuid }}</div>
+                  </div>
+                </div>
+              </template>
+            </Column>
+
+            <!--User Column-->
+            <Column header="Description">
+              <template #body="slotProps">
+                <div class="product-cell">
+                  <div>
+                    <div class="product-name">{{ slotProps.data.description }}</div>
+                  </div>
+                </div>
+              </template>
+            </Column>
+
+            <!--Amount Column-->
+            <Column header="Amount">
+              <template #body="slotProps">
+                <div class="product-cell">
+                  <div>
+                    {{ formatCurrency(slotProps.data.amount) }}
+                  </div>
+                </div>
+              </template>
+            </Column>
+
+            <!--Type Column-->
+            <Column header="Type">
+              <template #body="slotProps">
+                <div class="product-cell">
+                  <div>
+                    {{ slotProps.data.type }}
                   </div>
                 </div>
               </template>
@@ -75,39 +105,33 @@
             <!-- Status Column -->
             <Column header="Status">
               <template #body="slotProps">
-                <span :class="['status-pill', slotProps.data.is_active ? 'status-active' : 'status-inactive']">
-                  {{ slotProps.data.is_active ? 'Active' : 'Inactive' }}
+                <span :class="[
+                  'status-pill',
+                  slotProps.data.status === 'successful'
+                    ? 'status-active'
+                    : 'status-inactive'
+                ]">
+                  {{ slotProps.data.status === 'successful' ? 'Successful' : 'Pending' }}
                 </span>
               </template>
             </Column>
 
-            <!-- Created Column -->
-            <Column header="Created">
+            <!--Source Column-->
+            <Column header="Source">
               <template #body="slotProps">
-                {{ formatDate(slotProps.data.created_at) }}
+                <div class="product-cell">
+                  <div>
+                    {{ slotProps.data.transaction_source }}
+                  </div>
+                </div>
               </template>
             </Column>
 
-            <!-- Actions Column -->
-            <Column header="" style="width:120px">
+            <!-- Created Column -->
+            <Column header="Date and Time">
               <template #body="slotProps">
-                <v-menu>
-                  <template #activator="{ props }">
-                    <v-btn icon v-bind="props" variant="text">
-                      <v-icon>mdi-dots-horizontal</v-icon>
-                    </v-btn>
-                  </template>
-                  <v-list>
-                    <v-list-item @click="openEditModal(slotProps.data)">
-                      <v-icon start>mdi-pencil</v-icon>
-                      Edit
-                    </v-list-item>
-                    <v-list-item @click="deleteProduct(slotProps.data)">
-                      <v-icon start color="error">mdi-trash-can-outline</v-icon>
-                      Delete
-                    </v-list-item>
-                  </v-list>
-                </v-menu>
+                {{ formatDate(slotProps.data.transaction_date) }}
+                <div class="product-desc">{{ slotProps.data.transaction_time }}</div>
               </template>
             </Column>
 
@@ -140,22 +164,27 @@ import Sidebar from "@/components/Sidebar.vue"
 import Header from "@/components/Header.vue"
 import StatCard from "@/components/StatCard.vue"
 import { useAuthStore } from "@/store/auth"
-import { STORAGE_URL } from "@/api/env"
+import { useTransactStore } from "@/store/transaction"
+import { formatCurrencyCompact, formatDate, formatCurrency } from "@/util"
 
 import DataTable from "primevue/datatable"
 import Column from "primevue/column"
 import Button from "primevue/button"
 import InputText from "primevue/inputtext"
 
-import dayjs from "dayjs"
-
 const auth = useAuthStore()
+const tr = useTransactStore()
 
 const isSidebarCollapsed = ref(false)
 const drawerOpen = ref(false)
 const isMobile = ref(false)
 const filters = ref({ global: { value: null, matchMode: "contains" } })
-const defaultImage = "https://gravatar.com/avatar/"
+
+const stat = computed(() => auth.stat)
+const walletBalance = computed(() => stat.value?.walletBalance)
+const walletTr = computed(() => tr.walletTr || [])
+
+//const transactionTab = transactions.value.filter(tr => tr.type==="withdrawal")
 
 /* Mobile */
 const toggleSidebar = () => {
@@ -173,47 +202,41 @@ onMounted(async () => {
   checkMobile()
   window.addEventListener("resize", checkMobile)
   await auth.loadPartner()
-  await auth.loadProducts()
+  await auth.loadPartnerStat()
+  await tr.loadWalletTransaction()
+  console.log(walletTr.value)
 })
 
 onUnmounted(() => {
   window.removeEventListener("resize", checkMobile)
 })
 
-/* Products */
-const products = computed(() => auth.products || [])
 
-/* Stats */
-const activeProducts = computed(() => products.value.filter(p => p.is_active).length)
-const inactiveProducts = computed(() => products.value.filter(p => !p.is_active).length)
+const totalSuccesfullTransations = computed(() =>
+  walletTr.value
+    ?.filter(tr => tr.status === "successful" && tr.type === "withdrawal")
+    .reduce((sum, tr) => sum + Number(tr.amount || 0), 0)
+)
 
-/* Utils */
-const truncate = (text) => !text ? "" : text.length > 150 ? text.substring(0, 150) + "..." : text
-const formatDate = (date) => dayjs(date).format("MMM DD, YYYY")
+const completedTransations = computed(() =>
+  walletTr.value.filter(i => i.status === "successful" && i.type === "withdrawal").length
+)
 
-// /* Actions */
-// const editProduct = (product) => console.log("Edit", product)
-// const deleteProduct = (product) => console.log("Delete", product)
+const pendingTransations = computed(() =>
+  walletTr.value.filter(i => i.status === "pending" && i.type === "withdrawal").length
+)
+
+// const failedTransations = computed(() =>
+//   transactions.value.filter(i => i.status === "failed" && i.type === "withdrawal").length
+// )
+
+const totalTransationsCount = computed(() => walletTr.value.filter(i => i.status === "pending" && i.type === "withdrawal").length)
 
 /* Clear filters */
 const clearFilters = () => {
   filters.value = { global: { value: null, matchMode: "contains" } }
 }
 
-// Edit Modal
-const editDialog = ref(false)
-const selectedProduct = ref({})
-
-const openEditModal = (product) => {
-  selectedProduct.value = { ...product } // copy to avoid mutating table directly
-  editDialog.value = true
-}
-
-const closeEditModal = () => editDialog.value = false
-const saveEdit = () => {
-  console.log("Save", selectedProduct.value)
-  editDialog.value = false
-}
 </script>
 
 <style scoped>
