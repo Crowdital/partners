@@ -1,23 +1,27 @@
 import { defineStore } from "pinia"
 import { fetchTransactionData } from "@/api/transaction"
 import { executeWithdrawFunds } from "@/api/transaction"
+import { getWalletTransaction } from "@/api/transaction"
 
 export const useTransactStore = defineStore("transaction", {
   state: () => ({
-    transactions: null,
-    withdraw: null
+    transactions: [],
+    withdraw: null,
+    walletTr: []
   }),
 
   actions: {
     async loadTransaction() {
       const res = await fetchTransactionData()
       this.transactions = res.data.data
-      //console.log("Transaction loaded:", res.data.data)
+    },
+    async loadWalletTransaction() {
+      const res = await getWalletTransaction()
+      this.walletTr = res.data.data
     },
     async withdrawFunds(){
       const res = await executeWithdrawFunds()
-      //this.withdraw = res.data.data
-      console.log("Transaction loaded:", res.data.data)
+      this.withdraw = res.data.data
     }
   }
 })

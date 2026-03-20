@@ -61,7 +61,8 @@
           <!-- Placeholder: Table or Chart -->
           <v-row>
             <v-col cols="12" sm="3">
-              <Chart v-if="stat" type="doughnut" :data="chartData" :options="chartOptions" class="w-full" />
+              <Skeleton v-if="loading" height="250px" />
+              <Chart v-if="!loading && stat" type="doughnut" :data="chartData" :options="chartOptions" :key="doughnutKey" class="w-full" />
             </v-col>
 
             <v-col cols="12" sm="9">
@@ -228,7 +229,7 @@
 </template>
 
 <script setup>
-import { ref, onMounted, onUnmounted, computed } from "vue"
+import { ref, onMounted, onUnmounted, computed, watch } from "vue"
 import Sidebar from "@/components/Sidebar.vue"
 import Header from "@/components/Header.vue"
 import StatCard from "@/components/StatCard.vue"
@@ -267,8 +268,7 @@ const toggleDarkMode = () => {
   isDarkMode.value = !isDarkMode.value
   //console.log('Layout: new isDarkMode:', isDarkMode.value)
 }
-
-const stat = computed(() => auth.stat || [])
+const stat = computed(() => auth.stat)
 
 const totalInvestor = computed(() => stat.value?.totalInvestors)
 const totalInvestment = computed(() => stat.value?.totalInvestments)
@@ -279,14 +279,16 @@ const monthInvestment = computed(() => stat.value?.investmentsThisMonth)
 const expectedPayout = computed(() => stat.value?.totalExpectedPayout)
 const matureThisMonth = computed(() => stat.value?.maturingThisMonth)
 const investors = computed(() => stat.value?.investors || [])
+const doughnutKey = ref(0)
 
-//const totalWithdrawal = computed(() => stat.value.totalWithdrawal || [])
+const loading = ref(true)
 
 onMounted(async () => {
   checkMobile()
   window.addEventListener("resize", checkMobile)
   await auth.loadPartner()
   await auth.loadPartnerStat()
+  loading.value = false
 });
 
 // Reactive computed properties
@@ -306,8 +308,8 @@ const chartData = ref({
   datasets: [
     {
       data: [
-        stat.value?.totalInvestments || 1,
-        stat.value?.totalWithdrawal || 1
+        stat.value?.totalInvestments || 0,
+        stat.value?.totalWithdrawal || 0
       ],
       backgroundColor: [
         '#66BB6A',
@@ -388,6 +390,9 @@ const onRowCollapse = (event) => {
   console.log("Row Collapsed:", event.data)
 }
 
+watch(stat, () => {
+  doughnutKey.value++
+})
 </script>
 
 <style scoped>
